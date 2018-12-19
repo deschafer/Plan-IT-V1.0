@@ -52,7 +52,7 @@ BEGIN
     "\r\n"
     "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
     "LANGUAGE 9, 1\r\n"
-    "#include ""res\\PlannerApp.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""res\\planner_prelim.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
     "#include ""afxres.rc""      // Standard components\r\n"
     "#include ""afxprint.rc""    // printing/print preview resources\r\n"
     "#if !defined(_AFXDLL)\r\n"
@@ -72,9 +72,13 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDR_MAINFRAME           ICON                    "res\\PlannerApp.ico"
+IDR_MAINFRAME           ICON                    "res\\planner_prelim.ico"
 
-IDR_PlannerFileTYPE     ICON                    "res\\PlannerAppDoc.ico"
+IDR_plannerTYPE         ICON                    "res\\planner_prelimDoc.ico"
+
+IDR_MAINFRAME1          ICON                    "res\\idr_main.ico"
+
+IDI_ICON1               ICON                    "res\\icon1.ico"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -85,8 +89,6 @@ IDR_PlannerFileTYPE     ICON                    "res\\PlannerAppDoc.ico"
 IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
 
 IDR_MAINFRAME_256       BITMAP                  "res\\Toolbar256.bmp"
-
-IDB_BITMAP1             BITMAP                  "C:\\Users\\Damon\\source\\repos\\planner_prelim\\planner_prelim\\res\\Toolbar256.bmp"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -108,7 +110,7 @@ BEGIN
     BUTTON      ID_APP_ABOUT
 END
 
-IDR_MAINFRAME_256 TOOLBAR 16, 15
+IDR_MAINFRAME_256 TOOLBAR 30, 19
 BEGIN
     BUTTON      ID_FILE_NEW
     BUTTON      ID_FILE_OPEN
@@ -120,6 +122,16 @@ BEGIN
     SEPARATOR
     BUTTON      ID_FILE_PRINT
     BUTTON      ID_APP_ABOUT
+    SEPARATOR
+    BUTTON      ID_PREV_MONTH
+    BUTTON      ID_NEXT_MONTH
+    SEPARATOR
+    BUTTON      ID_YEAR_MINUS
+    BUTTON      ID_YEAR_PLUS
+    SEPARATOR
+    BUTTON      ID_VIEW_MONTHLY
+    BUTTON      ID_VIEW_WEEKLY
+    BUTTON      ID_VIEW_DAILY
 END
 
 
@@ -132,6 +144,7 @@ IDR_MAINFRAME MENU
 BEGIN
     POPUP "&File"
     BEGIN
+        MENUITEM "New &Frame",                  ID_FILE_NEW_FRAME
         MENUITEM "&New\tCtrl+N",                ID_FILE_NEW
         MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN
         MENUITEM "&Save\tCtrl+S",               ID_FILE_SAVE
@@ -141,9 +154,7 @@ BEGIN
         MENUITEM "Print Pre&view",              ID_FILE_PRINT_PREVIEW
         MENUITEM "P&rint Setup...",             ID_FILE_PRINT_SETUP
         MENUITEM SEPARATOR
-        MENUITEM "Sen&d...",                    ID_FILE_SEND_MAIL
-        MENUITEM SEPARATOR
-        MENUITEM "Recent File",                 ID_FILE_MRU_FILE1, GRAYED
+        MENUITEM "Recent File",                 ID_FILE_MRU_FILE1
         MENUITEM SEPARATOR
         MENUITEM "E&xit",                       ID_APP_EXIT
     END
@@ -155,9 +166,33 @@ BEGIN
         MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
         MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE
     END
+    POPUP "&View"
+    BEGIN
+        POPUP "&Toolbars and Docking Windows"
+        BEGIN
+            MENUITEM "<placeholder>",               ID_VIEW_TOOLBAR
+        END
+        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+    END
     POPUP "&Help"
     BEGIN
-        MENUITEM "&About PlannerApp...",        ID_APP_ABOUT
+        MENUITEM "&About planner_prelim...",    ID_APP_ABOUT
+    END
+    POPUP "Month"
+    BEGIN
+        MENUITEM "Next Month",                  ID_NEXT_MONTH
+        MENUITEM "Prev Month",                  ID_PREV_MONTH
+    END
+    POPUP "Year"
+    BEGIN
+        MENUITEM "Next Year",                   ID_YEAR_PLUS
+        MENUITEM "Previous Year",               ID_YEAR_MINUS
+    END
+    POPUP "View"
+    BEGIN
+        MENUITEM "Monthly ",                    ID_VIEW_MONTHLY
+        MENUITEM "Weekly",                      ID_VIEW_WEEKLY
+        MENUITEM "Daily",                       ID_VIEW_DAILY
     END
 END
 
@@ -173,16 +208,7 @@ END
 
 IDR_HELP_MENU MENU
 BEGIN
-    MENUITEM "&About PlannerApp...",        ID_APP_ABOUT
-END
-
-IDR_THEME_MENU MENU
-BEGIN
-    MENUITEM "Office 2007 (&Blue Style)",   ID_VIEW_APPLOOK_OFF_2007_BLUE
-    MENUITEM "Office 2007 (B&lack Style)",  ID_VIEW_APPLOOK_OFF_2007_BLACK
-    MENUITEM "Office 2007 (&Silver Style)", ID_VIEW_APPLOOK_OFF_2007_SILVER
-    MENUITEM "Office 2007 (&Aqua Style)",   ID_VIEW_APPLOOK_OFF_2007_AQUA
-    MENUITEM "Win&dows 7",                  ID_VIEW_APPLOOK_WINDOWS_7
+    MENUITEM "&About planner_prelim...",    ID_APP_ABOUT
 END
 
 ID_MENU_EVENT MENU
@@ -200,8 +226,8 @@ BEGIN
     END
     POPUP "LeftSideEvent"
     BEGIN
-        MENUITEM "Delete this Event",           32775
-        MENUITEM "Mark this Event as Completed", 32776
+        MENUITEM "Delete this Event",           ID_DAYSETTINGS_DELETETHISEVENT
+        MENUITEM "Mark this Event as Completed", ID_DAYSETTINGS_MARKTHISEVENTASCOMPLETED
         MENUITEM "Clear This Day",              ID_DAYSETTINGS_CLEARTHISDAY
     END
     POPUP "Weekly_AllDay"
@@ -223,7 +249,7 @@ BEGIN
     POPUP "Monthly"
     BEGIN
         MENUITEM "Go To This Day",              ID_MONTHLY_GOTOTHISDAY
-        MENUITEM "Go To This Week",             32778
+        MENUITEM "Go To This Week",             ID_MONTHLY_GOTOTHISWEEK
         MENUITEM "Clear This Day",              ID_DAYSETTINGS_CLEARTHISDAY
     END
 END
@@ -260,32 +286,59 @@ END
 
 IDD_ABOUTBOX DIALOGEX 0, 0, 170, 62
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "About PlannerApp"
+CAPTION "About planner_prelim"
 FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,14,14,21,20
-    LTEXT           "PlannerApp, Version 1.0",IDC_STATIC,42,14,114,8,SS_NOPREFIX
+    LTEXT           "planner_prelim, Version 1.0",IDC_STATIC,42,14,114,8,SS_NOPREFIX
     LTEXT           "Copyright (C) 2018",IDC_STATIC,42,26,114,8
     DEFPUSHBUTTON   "OK",IDOK,113,41,50,14,WS_GROUP
 END
 
-IDD_ADD_EVENT DIALOGEX 0, 0, 309, 143
+ID_ON_NEW_DOCUMENT DIALOGEX 0, 0, 405, 128
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Create A New Planner"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,174,96,128,26
+    PUSHBUTTON      "Cancel",IDCANCEL,312,96,80,26
+    GROUPBOX        "",IDC_STATIC,6,6,390,84
+    EDITTEXT        IDC_BEG_YEAR_EDIT,294,30,72,14,ES_AUTOHSCROLL
+    CONTROL         "",IDC_BEG_YEAR_SPIN,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,366,30,11,14
+    LTEXT           "Enter the Beginning Year Date:",IDC_STATIC,174,30,100,8
+    EDITTEXT        IDC_EDIT4,294,60,72,14,ES_AUTOHSCROLL
+    CONTROL         "",IDC_SPIN4,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,366,60,11,14
+    LTEXT           "Enter the Ending Year Date:",IDC_STATIC,174,60,100,8
+    CONTROL         "",IDC_NEW_PLN_NAME,"RichEdit20W",WS_BORDER | WS_TABSTOP | 0x80,12,30,144,24,WS_EX_STATICEDGE
+    LTEXT           "Add The Planner Name:",IDC_STATIC,12,18,114,12
+END
+
+IDD_ADD_EVENT DIALOGEX 0, 0, 269, 111
+STYLE DS_LOCALEDIT | DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Add Event"
+FONT 10, "Segoe UI", 400, 0, 0x0
+BEGIN
+    CONTROL         "",IDC_EVENT_DESCRIP,"RichEdit20W",WS_BORDER | WS_TABSTOP | 0x80,6,18,249,24
+    CONTROL         "",IDC_EVENT_PLACE,"RichEdit20W",WS_BORDER | WS_TABSTOP | 0x80,6,66,118,18
+    CONTROL         "",IDC_BEG_DATE,"RichEdit20W",WS_BORDER | WS_TABSTOP | 0x3080,212,57,36,12
+    CONTROL         "",IDC_END_DATE,"RichEdit20W",WS_BORDER | WS_TABSTOP | 0x3080,212,73,36,12
+    DEFPUSHBUTTON   "OK",IDOK,111,90,78,14
+    PUSHBUTTON      "Cancel",IDCANCEL,193,90,62,14
+    LTEXT           "Event Details",IDC_DESCRIPTION_ENTRY,122,7,101,11
+    LTEXT           "Event Name:",IDC_STATIC,6,6,114,8
+    LTEXT           "Leave blank for an all day event.",IDC_TIME_DESCRIPT,138,45,117,8
+    LTEXT           "End Time",IDC_STATIC,157,72,36,12
+    LTEXT           "Event Place:",IDC_STATIC,6,54,120,8
+    LTEXT           "Beginning Time",IDC_STATIC,138,59,57,12
+END
+
+IDD_DIALOG1 DIALOGEX 0, 0, 309, 176
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Dialog"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    CONTROL         "",IDC_EVENT_DESCRIP,"RichEdit20W",ES_AUTOHSCROLL | WS_BORDER | WS_TABSTOP,7,23,291,31
-    CONTROL         "",IDC_EVENT_PLACE,"RichEdit20W",ES_AUTOHSCROLL | WS_BORDER | WS_TABSTOP,7,86,138,23
-    CONTROL         "",IDC_BEG_DATE,"RichEdit20W",ES_AUTOHSCROLL | ES_WANTRETURN | ES_NUMBER | WS_BORDER | WS_TABSTOP,247,74,42,16
-    CONTROL         "",IDC_END_DATE,"RichEdit20W",ES_AUTOHSCROLL | ES_WANTRETURN | ES_NUMBER | WS_BORDER | WS_TABSTOP,247,95,42,16
-    DEFPUSHBUTTON   "OK",IDOK,129,118,91,18
-    PUSHBUTTON      "Cancel",IDCANCEL,225,118,73,18
-    LTEXT           "Event Details",IDC_DESCRIPTION_ENTRY,143,9,118,14
-    LTEXT           "Event Name:",IDC_STATIC,7,8,133,10
-    LTEXT           "Leave blank for an all day event.",IDC_TIME_DESCRIPT,161,59,137,10
-    LTEXT           "End Time",IDC_STATIC,183,94,42,16
-    LTEXT           "Event Place:",IDC_STATIC,7,71,140,10
-    LTEXT           "Beginning Time",IDC_STATIC,161,77,67,16
+    DEFPUSHBUTTON   "OK",IDOK,198,155,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,252,155,50,14
 END
 
 
@@ -312,11 +365,11 @@ BEGIN
         BLOCK "040904B0"
         BEGIN
             VALUE "CompanyName", "TODO: <Company name>"
-            VALUE "FileDescription", "PlannerApp"
+            VALUE "FileDescription", "planner_prelim"
             VALUE "FileVersion", "1.0.0.1"
-            VALUE "InternalName", "PlannerApp.exe"
+            VALUE "InternalName", "planner_prelim.exe"
             VALUE "LegalCopyright", "TODO: (c) <Company name>.  All rights reserved."
-            VALUE "OriginalFilename", "PlannerApp.exe"
+            VALUE "OriginalFilename", "planner_prelim.exe"
             VALUE "ProductName", "TODO: <Product name>"
             VALUE "ProductVersion", "1.0.0.1"
         END
@@ -344,12 +397,28 @@ BEGIN
         BOTTOMMARGIN, 55
     END
 
+    ID_ON_NEW_DOCUMENT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 398
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 121
+    END
+
     IDD_ADD_EVENT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 262
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 104
+    END
+
+    IDD_DIALOG1, DIALOG
     BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 302
         TOPMARGIN, 7
-        BOTTOMMARGIN, 136
+        BOTTOMMARGIN, 169
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -360,7 +429,17 @@ END
 // AFX_DIALOG_LAYOUT
 //
 
+ID_ON_NEW_DOCUMENT AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
 IDD_ADD_EVENT AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_DIALOG1 AFX_DIALOG_LAYOUT
 BEGIN
     0
 END
@@ -379,12 +458,12 @@ END
 
 STRINGTABLE
 BEGIN
-    IDR_MAINFRAME           "Plan-IT!\n\nPlanner\nPlannerApp Files (*.pln)\n.pln\nPlannerApp.Document\nPlannerApp.Document"
+    IDR_MAINFRAME           "SimplePlannerPrelim\n\nplanner\nplanner_prelim Files (*.pln)\n.pln\nplanner.Document\nplanner_prelim.Document"
 END
 
 STRINGTABLE
 BEGIN
-    AFX_IDS_APP_TITLE       "PlannerApp"
+    AFX_IDS_APP_TITLE       "planner_prelim"
     AFX_IDS_IDLEMESSAGE     "Ready"
 END
 
@@ -410,7 +489,12 @@ BEGIN
     ID_FILE_PRINT           "Print the active document\nPrint"
     ID_FILE_PRINT_DIRECT    "Print the active document using current options\nQuick Print"
     ID_FILE_PRINT_PREVIEW   "Display full pages\nPrint Preview"
-    ID_FILE_SEND_MAIL       "Send the active document through electronic mail\nSend Mail"
+    ID_FILE_NEW_FRAME       "Create a new frame\nNew Frame"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_CLOSE               "Close"
 END
 
 STRINGTABLE
@@ -467,6 +551,11 @@ END
 
 STRINGTABLE
 BEGIN
+    ID_VIEW_STATUS_BAR      "Show or hide the status bar\nToggle Status Bar"
+END
+
+STRINGTABLE
+BEGIN
     AFX_IDS_SCSIZE          "Change the window size"
     AFX_IDS_SCMOVE          "Change the window position"
     AFX_IDS_SCMINIMIZE      "Reduce the window to an icon"
@@ -500,6 +589,23 @@ BEGIN
     IDS_EDIT_MENU           "Edit"
 END
 
+STRINGTABLE
+BEGIN
+    ID_NEXT_MONTH           "Cycle to the next month"
+    ID_PREV_MONTH           "Cylce to previous mont\nCycle to preious month"
+END
+
+STRINGTABLE
+BEGIN
+    ID_YEAR_MINUS           "Move backwards one year\nMove backwards on year in this planner."
+    ID_YEAR_PLUS            "Move forward one year\nMove to the next year in this planner."
+END
+
+STRINGTABLE
+BEGIN
+    ID_VIEW_DAILY           "Switch to the Daily View"
+END
+
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
@@ -516,7 +622,7 @@ END
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 LANGUAGE 9, 1
-#include "res\PlannerApp.rc2"  // non-Microsoft Visual C++ edited resources
+#include "res\planner_prelim.rc2"  // non-Microsoft Visual C++ edited resources
 #include "afxres.rc"      // Standard components
 #include "afxprint.rc"    // printing/print preview resources
 #if !defined(_AFXDLL)

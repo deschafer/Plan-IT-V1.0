@@ -91,7 +91,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
@@ -137,7 +137,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
@@ -186,16 +186,38 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Dialog\DialogAddEvent.h" />
+    <ClInclude Include="Dialog\stdafx.h" />
     <ClInclude Include="MainFrm.h" />
+    <ClInclude Include="PlanAPI\Day.h" />
+    <ClInclude Include="PlanAPI\LLNode.h" />
+    <ClInclude Include="PlanAPI\LLNode_Event.h" />
+    <ClInclude Include="PlanAPI\LLNode_Year.h" />
+    <ClInclude Include="PlanAPI\Month.h" />
+    <ClInclude Include="PlanAPI\PlannerEvent.h" />
+    <ClInclude Include="PlanAPI\PlannerObject.h" />
+    <ClInclude Include="PlanAPI\stdafx.h" />
+    <ClInclude Include="PlanAPI\Year.h" />
     <ClInclude Include="PlannerApp.h" />
     <ClInclude Include="PlannerAppDoc.h" />
     <ClInclude Include="PlannerAppView.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="SubView\stdafx.h" />
+    <ClInclude Include="SubView\ViewBase.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Dialog\DialogAddEvent.cpp" />
     <ClCompile Include="MainFrm.cpp" />
+    <ClCompile Include="PlanAPI\Day.cpp" />
+    <ClCompile Include="PlanAPI\LLNode.cpp" />
+    <ClCompile Include="PlanAPI\LLNode_Event.cpp" />
+    <ClCompile Include="PlanAPI\LLNode_Year.cpp" />
+    <ClCompile Include="PlanAPI\Month.cpp" />
+    <ClCompile Include="PlanAPI\PlannerEvent.cpp" />
+    <ClCompile Include="PlanAPI\PlannerObject.cpp" />
+    <ClCompile Include="PlanAPI\Year.cpp" />
     <ClCompile Include="PlannerApp.cpp" />
     <ClCompile Include="PlannerAppDoc.cpp" />
     <ClCompile Include="PlannerAppView.cpp" />
@@ -205,6 +227,10 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="SubView\ViewBase.cpp" />
+    <ClCompile Include="SubView\ViewDaily.cpp" />
+    <ClCompile Include="SubView\ViewMonthly.cpp" />
+    <ClCompile Include="SubView\ViewWeekly.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="PlannerApp.reg" />
@@ -214,6 +240,7 @@
     <ResourceCompile Include="PlannerApp.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\..\planner_prelim\planner_prelim\res\Toolbar256.bmp" />
     <Image Include="res\PlannerApp.ico" />
     <Image Include="res\PlannerAppDoc.ico" />
     <Image Include="res\Toolbar.bmp" />

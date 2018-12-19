@@ -109,9 +109,9 @@ BOOL CPlannerAppApp::InitInstance()
 	CSingleDocTemplate* pDocTemplate;
 	pDocTemplate = new CSingleDocTemplate(
 		IDR_MAINFRAME,
-		RUNTIME_CLASS(CPlannerAppDoc),
+		RUNTIME_CLASS(CPlannerDoc),
 		RUNTIME_CLASS(CMainFrame),       // main SDI frame window
-		RUNTIME_CLASS(CPlannerAppView));
+		RUNTIME_CLASS(CPlannerView));
 	if (!pDocTemplate)
 		return FALSE;
 	AddDocTemplate(pDocTemplate);

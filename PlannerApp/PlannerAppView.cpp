@@ -19,30 +19,56 @@
 
 // CPlannerAppView
 
-IMPLEMENT_DYNCREATE(CPlannerAppView, CView)
+IMPLEMENT_DYNCREATE(CPlannerView, CView)
 
-BEGIN_MESSAGE_MAP(CPlannerAppView, CView)
+BEGIN_MESSAGE_MAP(CPlannerView, CView)
 	// Standard printing commands
 	ON_COMMAND(ID_FILE_PRINT, &CView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_DIRECT, &CView::OnFilePrint)
-	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CPlannerAppView::OnFilePrintPreview)
+	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CPlannerView::OnFilePrintPreview)
 	ON_WM_CONTEXTMENU()
 	ON_WM_RBUTTONUP()
+	ON_WM_SIZE()
+	ON_WM_LBUTTONDOWN()
+	ON_COMMAND(ID_NEXT_MONTH, &CPlannerView::OnNextMonth)
+	ON_COMMAND(ID_PREV_MONTH, &CPlannerView::OnPrevMonth)
+	ON_COMMAND(ID_YEAR_PLUS, &CPlannerView::OnYearPlus)
+	ON_COMMAND(ID_YEAR_MINUS, &CPlannerView::OnYearMinus)
+	ON_COMMAND(ID_VIEW_MONTHLY, &CPlannerView::OnViewMonthly)
+	ON_COMMAND(ID_VIEW_WEEKLY, &CPlannerView::OnViewWeekly)
+	ON_WM_MOUSEWHEEL()
+	ON_WM_ERASEBKGND()
+	ON_COMMAND(ID_VIEW_DAILY, &CPlannerView::OnViewDaily)
+	ON_WM_KEYDOWN()
+	ON_COMMAND(ID_DAYSETTINGS_CLEARTHISDAY, &CPlannerView::OnClearDay)
+	ON_COMMAND(ID_DAYSETTINGS_DELETETHISEVENT, &CPlannerView::OnDayDeleteEvent)
+	ON_COMMAND(ID_DAYSETTINGS_MARKTHISEVENTASCOMPLETED, &CPlannerView::OnDayMarkAsCompleted)
+	ON_COMMAND(ID_RIGHTSIDEDELETION_CLEARTHISHOUR, &CPlannerView::OnClearHour)
+	ON_COMMAND(ID_RIGHTSIDEDELETION_MARKNEXTEVENTASCOMPLETED, &CPlannerView::OnMarkNextAsCompleted)
+	ON_COMMAND(ID_RIGHTSIDEDELETION_REMOVETHEFIRSTEVENT, &CPlannerView::OnRemoveFirstEvent)
+	ON_COMMAND(ID_MONTHLY_GOTOTHISDAY, &CPlannerView::OnGoToDay)
 END_MESSAGE_MAP()
 
 // CPlannerAppView construction/destruction
 
-CPlannerAppView::CPlannerAppView()
+CPlannerView::CPlannerView() : m_Rows(5), m_Columns(7), m_Height(0),
+m_Width(0), m_TopBarSize(60), m_DialogMax(1), m_DialogCount(0), m_Planner(new CPlannerObject(2018, 2038, this)),
+m_MonthlyView(&m_Rows, &m_Columns, &m_Height, &m_Width, &m_TopBarSize, m_Planner),
+m_WeeklyView(&m_Rows, &m_Columns, &m_Height, &m_Width, &m_TopBarSize, m_Planner),
+m_DailyView(&m_Width, &m_Height, &m_TopBarSize, m_Planner),
+m_PreviousPoint(nullptr)
 {
-	// TODO: add construction code here
 
+	//m_CurrentView = &m_WeeklyView;
+	//m_CurrentView = &m_DailyView;
+	m_CurrentView = &m_MonthlyView;
 }
 
-CPlannerAppView::~CPlannerAppView()
+CPlannerView::~CPlannerView()
 {
 }
 
-BOOL CPlannerAppView::PreCreateWindow(CREATESTRUCT& cs)
+BOOL CPlannerView::PreCreateWindow(CREATESTRUCT& cs)
 {
 	// TODO: Modify the Window class or styles here by modifying
 	//  the CREATESTRUCT cs
@@ -52,50 +78,82 @@ BOOL CPlannerAppView::PreCreateWindow(CREATESTRUCT& cs)
 
 // CPlannerAppView drawing
 
-void CPlannerAppView::OnDraw(CDC* /*pDC*/)
+void CPlannerView::OnDraw(CDC* pDC)
 {
-	CPlannerAppDoc* pDoc = GetDocument();
+	// Creating a CMemDC object
+	CMemDC DpDC(*pDC, this);
+
+	// Setting the current device context to this new device context
+	pDC = &DpDC.GetDC();
+	// Saving the current device context in this object
+	m_pDC = pDC;
+
+	// Getting the document
+	CPlannerDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 	if (!pDoc)
 		return;
 
-	// TODO: add draw code for native data here
+	CRect rect;
+
+	if (pDoc->m_NewPlanner != nullptr)
+	{
+		m_Planner = pDoc->m_NewPlanner;
+
+		m_CurrentView->SetNewPlannerObject(pDoc->m_NewPlanner);
+	}
+	else
+	{
+		pDoc->m_Planner = m_Planner;
+	}
+
+	// Gets the current client dimensions of this view object
+	this->GetClientRect(&rect);
+
+	// Sets appropriate variables to these dimensions
+	m_Height = rect.Height();
+	m_Width = rect.Width();
+
+	// Drawing the layout for the current selected view object
+	m_CurrentView->DrawLayout(pDC, this);
+
+
 }
 
 
 // CPlannerAppView printing
 
 
-void CPlannerAppView::OnFilePrintPreview()
+void CPlannerView::OnFilePrintPreview()
 {
 #ifndef SHARED_HANDLERS
 	AFXPrintPreview(this);
 #endif
 }
 
-BOOL CPlannerAppView::OnPreparePrinting(CPrintInfo* pInfo)
+BOOL CPlannerView::OnPreparePrinting(CPrintInfo* pInfo)
 {
 	// default preparation
 	return DoPreparePrinting(pInfo);
 }
 
-void CPlannerAppView::OnBeginPrinting(CDC* /*pDC*/, CPrintInfo* /*pInfo*/)
+void CPlannerView::OnBeginPrinting(CDC* /*pDC*/, CPrintInfo* /*pInfo*/)
 {
 	// TODO: add extra initialization before printing
 }
 
-void CPlannerAppView::OnEndPrinting(CDC* /*pDC*/, CPrintInfo* /*pInfo*/)
+void CPlannerView::OnEndPrinting(CDC* /*pDC*/, CPrintInfo* /*pInfo*/)
 {
 	// TODO: add cleanup after printing
 }
 
-void CPlannerAppView::OnRButtonUp(UINT /* nFlags */, CPoint point)
+void CPlannerView::OnRButtonUp(UINT /* nFlags */, CPoint point)
 {
 	ClientToScreen(&point);
 	OnContextMenu(this, point);
 }
 
-void CPlannerAppView::OnContextMenu(CWnd* /* pWnd */, CPoint point)
+void CPlannerView::OnContextMenu(CWnd* /* pWnd */, CPoint point)
 {
 #ifndef SHARED_HANDLERS
 	theApp.GetContextMenuManager()->ShowPopupMenu(IDR_POPUP_EDIT, point.x, point.y, this, TRUE);
@@ -106,22 +164,47 @@ void CPlannerAppView::OnContextMenu(CWnd* /* pWnd */, CPoint point)
 // CPlannerAppView diagnostics
 
 #ifdef _DEBUG
-void CPlannerAppView::AssertValid() const
+void CPlannerView::AssertValid() const
 {
 	CView::AssertValid();
 }
 
-void CPlannerAppView::Dump(CDumpContext& dc) const
+void CPlannerView::Dump(CDumpContext& dc) const
 {
 	CView::Dump(dc);
 }
 
-CPlannerAppDoc* CPlannerAppView::GetDocument() const // non-debug version is inline
+CPlannerDoc* CPlannerView::GetDocument() const // non-debug version is inline
 {
-	ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CPlannerAppDoc)));
-	return (CPlannerAppDoc*)m_pDocument;
+	ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CPlannerDoc)));
+	return (CPlannerDoc*)m_pDocument;
 }
 #endif //_DEBUG
 
 
-// CPlannerAppView message handlers
+//
+// WindowDestroyed()
+// Called by dialog is the dialog window is destroyed,
+// it will decrement the open dialog count for this view
+// so another dialog can be opened.
+//
+void CPlannerView::WindowDestroyed()
+{
+	// Decrement open dialog count
+	m_DialogCount--;
+
+	// Resets the selected object, as it is no longer selected
+	m_CurrentView->ResetSelectedObject();
+	InvalidateRect(nullptr);
+}
+
+int CPlannerView::SetDayObject(CDay *Day)
+{
+
+	m_Planner->SetDayObject(Day);
+	InvalidateRect(Day->m_Cell);
+	return 0;
+}
+
+// CPlannerView message handlers in PLANNER.cpp
+

@@ -19,27 +19,27 @@
 
 // CPlannerAppDoc
 
-IMPLEMENT_DYNCREATE(CPlannerAppDoc, CDocument)
+IMPLEMENT_DYNCREATE(CPlannerDoc, CDocument)
 
-BEGIN_MESSAGE_MAP(CPlannerAppDoc, CDocument)
-	ON_COMMAND(ID_FILE_SEND_MAIL, &CPlannerAppDoc::OnFileSendMail)
-	ON_UPDATE_COMMAND_UI(ID_FILE_SEND_MAIL, &CPlannerAppDoc::OnUpdateFileSendMail)
+BEGIN_MESSAGE_MAP(CPlannerDoc, CDocument)
+	ON_COMMAND(ID_FILE_SEND_MAIL, &CPlannerDoc::OnFileSendMail)
+	ON_UPDATE_COMMAND_UI(ID_FILE_SEND_MAIL, &CPlannerDoc::OnUpdateFileSendMail)
 END_MESSAGE_MAP()
 
 
 // CPlannerAppDoc construction/destruction
 
-CPlannerAppDoc::CPlannerAppDoc()
+CPlannerDoc::CPlannerDoc()
 {
 	// TODO: add one-time construction code here
 
 }
 
-CPlannerAppDoc::~CPlannerAppDoc()
+CPlannerDoc::~CPlannerDoc()
 {
 }
 
-BOOL CPlannerAppDoc::OnNewDocument()
+BOOL CPlannerDoc::OnNewDocument()
 {
 	if (!CDocument::OnNewDocument())
 		return FALSE;
@@ -55,15 +55,26 @@ BOOL CPlannerAppDoc::OnNewDocument()
 
 // CPlannerAppDoc serialization
 
-void CPlannerAppDoc::Serialize(CArchive& ar)
+void CPlannerDoc::Serialize(CArchive& ar)
 {
 	if (ar.IsStoring())
 	{
-		// TODO: add storing code here
+
+		ar << m_Planner;
+
+
 	}
 	else
 	{
-		// TODO: add loading code here
+		m_NewPlanner = new CPlannerObject;
+
+		ar >> m_NewPlanner;
+
+		CString String;
+		String.Format(L"%d", m_NewPlanner->ReturnBegYear());
+		AfxMessageBox(String);
+
+		InvalidateRect(GetActiveWindow(), nullptr, TRUE);
 	}
 }
 
@@ -124,12 +135,12 @@ void CPlannerAppDoc::SetSearchContent(const CString& value)
 // CPlannerAppDoc diagnostics
 
 #ifdef _DEBUG
-void CPlannerAppDoc::AssertValid() const
+void CPlannerDoc::AssertValid() const
 {
 	CDocument::AssertValid();
 }
 
-void CPlannerAppDoc::Dump(CDumpContext& dc) const
+void CPlannerDoc::Dump(CDumpContext& dc) const
 {
 	CDocument::Dump(dc);
 }

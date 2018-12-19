@@ -4,13 +4,14 @@
 
 
 #pragma once
+#include "PlanAPI\PlannerObject.h"
+#include "SubView\ViewBase.h"
 
-
-class CPlannerAppDoc : public CDocument
+class CPlannerDoc : public CDocument
 {
 protected: // create from serialization only
-	CPlannerAppDoc();
-	DECLARE_DYNCREATE(CPlannerAppDoc)
+	CPlannerDoc();
+	DECLARE_DYNCREATE(CPlannerDoc)
 
 // Attributes
 public:
@@ -29,7 +30,10 @@ public:
 
 // Implementation
 public:
-	virtual ~CPlannerAppDoc();
+	virtual ~CPlannerDoc();
+
+	CPlannerObject* m_Planner;
+	CPlannerObject* m_NewPlanner;
 #ifdef _DEBUG
 	virtual void AssertValid() const;
 	virtual void Dump(CDumpContext& dc) const;
