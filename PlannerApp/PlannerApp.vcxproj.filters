@@ -78,6 +78,9 @@
     <ClInclude Include="SubView\stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Dialog\DialogNewPlanner.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PlannerApp.cpp">
@@ -134,6 +137,15 @@
     <ClCompile Include="Dialog\DialogAddEvent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PLANNER.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SubView\ViewDefault.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Dialog\DialogNewPlanner.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PlannerApp.reg" />
@@ -163,6 +175,12 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="..\..\planner_prelim\planner_prelim\res\Toolbar256.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bitmap2.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\welcomeTxt.bmp">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

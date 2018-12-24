@@ -11,6 +11,7 @@ class CPlannerObject : public CObject
 	DECLARE_SERIAL(CPlannerObject);
 protected:
 	
+	CString m_PlannerName;	// Name for this planner object
 	int m_BegYear;		// First year of this planner's year range
 	int m_EndYear;		// Last year of this planner's year range
 	int m_YearCount;	// The range of years for this planner
@@ -20,13 +21,14 @@ protected:
 public:
 	// Default CTOR should not be used
 	CPlannerObject() {};
-	CPlannerObject(int begYear, int endYear, CPlannerView* view);
+	CPlannerObject(int begYear, int endYear, CString Name = _T(""));
 	virtual ~CPlannerObject() {};
 	
 	// Methods
 
 	int SetDayObject(CDay* Day);
 	int ReturnBegYear() { return m_BegYear; }
+	const CString ReturnPlannerName() const { return m_PlannerName; }
 	void IncrementCurrentYear(int x);
 	void DecrementCurrentYear(int x);
 	bool IsToday(CDay *Day);

@@ -50,7 +50,6 @@ void CViewDaily::DrawLayout(CDC* pDC, CPlannerView* View)
 	if (m_Width == 0 || m_Height == 0 || m_SizeChanged)
 	{
 		InitilizeWndVariables(View);
-		m_CurrentMonth->ResetCells(m_WidthPortion, m_HeightPortion);
 	}
 
 	// Get the current day object
@@ -186,14 +185,6 @@ void CViewDaily::DrawLeftSection(CDC* pDC, CPlannerView* View, int HeightMin, in
 	// Selecting the new font
 	OldFont = pDC->SelectObject(&Font);
 
-	String.Format(L"%d", 55555555);
-
-	if(TotalTextHeight < TotalTextHeight + 
-		(((pDC->GetTextExtent(String).cy)) * 
-		(m_CurrDay->GetNumberOfAllDayEvents() - 
-			m_AllDayOffset)))
-	TotalTextHeight += (((pDC->GetTextExtent(String).cy)) * (m_CurrDay->GetNumberOfAllDayEvents()- m_AllDayOffset));
-
 	// Adding the offset for scrolling
 	i += m_AllDayOffset;
 
@@ -208,17 +199,20 @@ void CViewDaily::DrawLeftSection(CDC* pDC, CPlannerView* View, int HeightMin, in
 		}
 		else
 		{
-			if (*CurrEvent->GetPlace() == _T("")) String.Format(L"%d.     %s : %s", i + 1, *CurrEvent->GetDescription(), *CurrEvent->GetPlace());
-			else String.Format(L"%d.     %s", i + 1, *CurrEvent->GetDescription());
+			if (*CurrEvent->GetPlace() == _T("")) String.Format(L"%d.     %s", i + 1, *CurrEvent->GetDescription());
+			else String.Format(L"%d.     %s : %s", i + 1, *CurrEvent->GetDescription(), *CurrEvent->GetPlace());
 		}
 		
-		if(CurrEvent->IsCompleted()) pDC->TextOutW(WidthMin + 5, HeightMin + (j * m_LeftSideStringSpace) + 5, _T("Completed"));
+		if (CurrEvent->IsCompleted())
+		{
+			CString String2 = _T(" -- Completed");
+			String = String + String2;
+			pDC->TextOutW(WidthMin + 5, HeightMin + (j * m_LeftSideStringSpace) + 5, String);
+		}
 		else
 		{
 			// Printing out the string
 			pDC->TextOutW(WidthMin + 5, HeightMin + (j * m_LeftSideStringSpace) + 5, String);
-			pDC->MoveTo(0, HeightMin + (j * m_LeftSideStringSpace) + 5);
-			pDC->LineTo(WidthMax, HeightMin + (j * m_LeftSideStringSpace) + 5);
 		}
 	}
 
@@ -233,6 +227,9 @@ void CViewDaily::DrawLeftSection(CDC* pDC, CPlannerView* View, int HeightMin, in
 		&CBrush(RGB(0, 0, 0)));
 	// Drawing the text of the button
 	pDC->TextOutW(WidthMin + 5, HeightMin + (j * m_LeftSideStringSpace) + Offset, _T("+ Add New Event"));
+
+	m_EventButtonWidthMax = pDC->GetTextExtent(_T("+ Add New Event")).cx + Offset + 5;
+	m_EventButtonWidthMin = WidthMin + 2;
 
 	// Resetting the font
 	pDC->SelectObject(OldFont);
@@ -652,8 +649,8 @@ bool CViewDaily::SetObject(CPoint Point, CDay **DayObject)
 	{
 		// Add event button
 		if ((Point.y >= ((m_CurrDay->GetNumberOfAllDayEvents() - m_AllDayOffset) * m_LeftSideStringSpace) + *m_TopBarSize + 10 &&
-			Point.y <= (((m_CurrDay->GetNumberOfAllDayEvents() - m_AllDayOffset) + 1) * m_LeftSideStringSpace) + *m_TopBarSize + 15) ||
-			m_AllDayEventAddedPrevious)
+			Point.y <= (((m_CurrDay->GetNumberOfAllDayEvents() - m_AllDayOffset) + 1) * m_LeftSideStringSpace) + *m_TopBarSize + 15) &&
+			Point.x >= m_EventButtonWidthMin && Point.x <= m_EventButtonWidthMax || m_AllDayEventAddedPrevious)
 		{
 			// Setting the day object ptr
 			*DayObject = m_CurrDay;
@@ -670,7 +667,6 @@ bool CViewDaily::SetObject(CPoint Point, CDay **DayObject)
 			return true;
 		}
 		CPlannerEvent* Event;
-		//m_CurrDay->DeleteXthElement(true, (Point.y - *m_TopBarSize) / m_LeftFontActualSize);
 		if ((Event = m_CurrDay->GetAllDayEvent((Point.y - *m_TopBarSize) / m_LeftFontActualSize)) != nullptr) Event->MarkCompleted();
 		m_SizeChanged = 1;
 	}
@@ -752,8 +748,6 @@ CMenu* CViewDaily::HandleContextMenu(CWnd* pWnd, CPoint Point)
 	GetCursorPos(&m_CursorPosition);
 	// Converting screen coordinates to client coordinates
 	ScreenToClient(m_CurrentView->m_hWnd, &m_CursorPosition);
-
-	
 
 	// If the point is in the left side
 	if (m_CursorPosition.y > *m_TopBarSize &&

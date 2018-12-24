@@ -202,46 +202,23 @@ void CLLNode_Event::Serialize(CArchive &ar)
 	if (ar.IsStoring())
 	{
 		m_Size = GetNumberOfEvents();
-
 		ar << m_Size;
-
 		for (int i = 0; (Curr != nullptr); Curr = Curr->next)
 		{
 			ar << Curr->Object;
-
-			if (Curr != nullptr)
-			{
-
-				CString String;
-				//String.Format(L"%d", Curr->Object->GetStartTime());
-				AfxMessageBox(*Curr->Object->GetDescription());
-
-			}
-
 		}
 
 	}
 	// Storing
 	else
 	{
-
 		ar >> m_Size;
-
 		for (int i = 0; i < m_Size; i++)
 		{
 			
 			CPlannerEvent *Event = new CPlannerEvent;
 			ar >> Event;
-
-			if (Event != nullptr)
-			{
-
-				CString String;
-				//String.Format(L"%d", Curr->Object->GetStartTime());
-				AfxMessageBox(*Event->GetDescription());
-			}
-
-			this->EnQueue(Event);
+			EnQueue(Event);
 		}
 	}
 }

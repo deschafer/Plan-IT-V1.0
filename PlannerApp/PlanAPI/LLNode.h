@@ -25,7 +25,6 @@ public:
 	~CLLNode() {};
 
 	void EnQueue(CDay *DayObject);		// Adds a new node to the end of the list
-	void ResetSizes(CMonth* Month);		// Edits the sizes of all the nodes in the linked list
 	Node* GetHead() { return p_Head; }	// Returns the head pointer
 	Node* ReturnAuxPointer() { return m_AuxPtr; }
 	Node* m_AuxPtr;

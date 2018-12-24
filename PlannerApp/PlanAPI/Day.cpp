@@ -28,6 +28,28 @@ CDay::CDay(const int DayNumber, const int DayOfWeek, CPoint TopLeft, CPoint Bott
 	m_AllDayEventList = new CLLNode_Event();
 }
 
+// 
+// CDay()
+// Std. ctor for this object
+//
+CDay::CDay(const int DayNumber, const int DayOfWeek, int Month, int Year)
+{
+	// Setting variables
+	m_DayNumber = DayNumber;
+	m_DayOfWeek = DayOfWeek;
+	m_Year = Year;
+	m_Month = Month;
+
+	// Initialized array of LL's for events
+	for (int i = 0; i < 24; i++)
+	{
+		EventListArray[i] = new CLLNode_Event();
+	}
+
+	m_AllDayEventList = new CLLNode_Event();
+}
+
+
 // CDay member functions
 
 //
@@ -249,8 +271,7 @@ void CDay::Serialize(CArchive& ar)
 	// Writing
 	if (ar.IsStoring())
 	{
-		ar << m_Cell
-			<< m_DayNumber
+		ar  << m_DayNumber
 			<< m_DayOfWeek
 			<< m_Year
 			<< m_Month
@@ -267,8 +288,7 @@ void CDay::Serialize(CArchive& ar)
 	{
 		m_AllDayEventList = new CLLNode_Event;
 
-		ar >> m_Cell
-			>> m_DayNumber
+		ar  >> m_DayNumber
 			>> m_DayOfWeek
 			>> m_Year
 			>> m_Month

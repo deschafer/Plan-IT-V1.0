@@ -10,6 +10,7 @@
 #include "PlanAPI\PlannerObject.h"
 #include "SubView\ViewBase.h"
 #include "Dialog\DialogAddEvent.h"
+#include "Dialog\DialogNewPlanner.h"
 
 class CPlannerView : public CView
 {
@@ -46,6 +47,13 @@ public:
 	void WindowDestroyed();
 	void UpdateView() { m_CurrentView->ResetSelectedObject(); }
 	void CreateNewEventDialog();
+	int SetPlannerObject(CPlannerDoc* Doc);
+	void SetActiveSubview(SubView SubViewType);
+	bool CreateNewPlanner();
+	bool OpenPreviousPlanner(CString &NewPathname);
+	void OpenFile(CString AbsPathname);
+
+	CDC* m_pDC;
 #ifdef _DEBUG
 	virtual void AssertValid() const;
 	virtual void Dump(CDumpContext& dc) const;
@@ -75,6 +83,7 @@ protected:
 	CViewMonthly m_MonthlyView;
 	CViewWeekly m_WeeklyView;
 	CViewDaily m_DailyView;
+	CViewDefault m_DefaultView;
 
 // Generated message map functions
 protected:
@@ -82,6 +91,29 @@ protected:
 	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void OnSize(UINT nType, int cx, int cy);
+	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+	afx_msg void OnNextMonth();
+	afx_msg void OnPrevMonth();
+	afx_msg void OnYearPlus();
+	afx_msg void OnYearMinus();
+	afx_msg void OnViewMonthly();
+	afx_msg void OnViewWeekly();
+	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
+	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
+	afx_msg void OnViewDaily();
+	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+	afx_msg void OnClearDay();
+	afx_msg void OnDayDeleteEvent();
+	afx_msg void OnDayMarkAsCompleted();
+	afx_msg void OnClearHour();
+	afx_msg void OnMarkNextAsCompleted();
+	afx_msg void OnRemoveFirstEvent();
+	afx_msg void OnGoToDay();
+	afx_msg void OnFileOpenPlanner();
+	afx_msg void OnSavePlanner();
+	afx_msg void OnSavePlannerAs();
 };
 
 #ifndef _DEBUG  // debug version in PlannerAppView.cpp

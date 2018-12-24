@@ -187,6 +187,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dialog\DialogAddEvent.h" />
+    <ClInclude Include="Dialog\DialogNewPlanner.h" />
     <ClInclude Include="Dialog\stdafx.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="PlanAPI\Day.h" />
@@ -209,6 +210,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Dialog\DialogAddEvent.cpp" />
+    <ClCompile Include="Dialog\DialogNewPlanner.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="PlanAPI\Day.cpp" />
     <ClCompile Include="PlanAPI\LLNode.cpp" />
@@ -218,6 +220,7 @@
     <ClCompile Include="PlanAPI\PlannerEvent.cpp" />
     <ClCompile Include="PlanAPI\PlannerObject.cpp" />
     <ClCompile Include="PlanAPI\Year.cpp" />
+    <ClCompile Include="PLANNER.cpp" />
     <ClCompile Include="PlannerApp.cpp" />
     <ClCompile Include="PlannerAppDoc.cpp" />
     <ClCompile Include="PlannerAppView.cpp" />
@@ -229,6 +232,7 @@
     </ClCompile>
     <ClCompile Include="SubView\ViewBase.cpp" />
     <ClCompile Include="SubView\ViewDaily.cpp" />
+    <ClCompile Include="SubView\ViewDefault.cpp" />
     <ClCompile Include="SubView\ViewMonthly.cpp" />
     <ClCompile Include="SubView\ViewWeekly.cpp" />
   </ItemGroup>
@@ -241,10 +245,12 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\planner_prelim\planner_prelim\res\Toolbar256.bmp" />
+    <Image Include="res\bitmap2.bmp" />
     <Image Include="res\PlannerApp.ico" />
     <Image Include="res\PlannerAppDoc.ico" />
     <Image Include="res\Toolbar.bmp" />
     <Image Include="res\Toolbar256.bmp" />
+    <Image Include="res\welcomeTxt.bmp" />
     <Image Include="UserImages.bmp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

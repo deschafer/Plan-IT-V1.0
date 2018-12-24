@@ -3,6 +3,7 @@
 #include "afxcmn.h"
 #include "..\PlannerAppView.h"
 #include "afxwin.h"
+#include "afxbutton.h"
 
 // CDialogAddEvent dialog
 
@@ -30,6 +31,7 @@ public:
 
 	CPlannerView* View;
 	CDay *m_Day;
+	CFont OkFont;
 
 	bool SetBegTime(int Hours, int Minutes);
 	bool SetEndTime(int Hours, int Minutes);
@@ -56,8 +58,13 @@ public:
 	CRichEditCtrl m_EndEdit;
 	CRichEditCtrl m_BegEdit;
 	CStatic m_EventDescript;
-	afx_msg void OnBnClickedCancel();
-	afx_msg void OnDestroy();
 	afx_msg void OnEnChangeEndDate();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	CStatic m_StaticPlace;
+	CStatic m_StaticEndTime;
+	virtual void OnCancel();
+	virtual BOOL DestroyWindow();
+	CMFCButton m_OKButton;
 };
+
+bool Validate(CString str);

@@ -12,6 +12,8 @@
 #include "PlannerAppDoc.h"
 #include "PlannerAppView.h"
 
+#include <fstream>
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -47,21 +49,26 @@ BEGIN_MESSAGE_MAP(CPlannerView, CView)
 	ON_COMMAND(ID_RIGHTSIDEDELETION_MARKNEXTEVENTASCOMPLETED, &CPlannerView::OnMarkNextAsCompleted)
 	ON_COMMAND(ID_RIGHTSIDEDELETION_REMOVETHEFIRSTEVENT, &CPlannerView::OnRemoveFirstEvent)
 	ON_COMMAND(ID_MONTHLY_GOTOTHISDAY, &CPlannerView::OnGoToDay)
+	ON_COMMAND(ID_FILE_OPENPLANNER, &CPlannerView::OnFileOpenPlanner)
+	ON_COMMAND(ID_SAVE_PLANNER, &CPlannerView::OnSavePlanner)
+	ON_COMMAND(ID_SAVE_PLANNER_AS, &CPlannerView::OnSavePlannerAs)
 END_MESSAGE_MAP()
 
 // CPlannerAppView construction/destruction
 
 CPlannerView::CPlannerView() : m_Rows(5), m_Columns(7), m_Height(0),
-m_Width(0), m_TopBarSize(60), m_DialogMax(1), m_DialogCount(0), m_Planner(new CPlannerObject(2018, 2038, this)),
+m_Width(0), m_TopBarSize(60), m_DialogMax(1), m_DialogCount(0), m_Planner(nullptr), //m_Planner(new CPlannerObject(2018, 2028, _T("New Planner"))),
 m_MonthlyView(&m_Rows, &m_Columns, &m_Height, &m_Width, &m_TopBarSize, m_Planner),
 m_WeeklyView(&m_Rows, &m_Columns, &m_Height, &m_Width, &m_TopBarSize, m_Planner),
 m_DailyView(&m_Width, &m_Height, &m_TopBarSize, m_Planner),
-m_PreviousPoint(nullptr)
+m_DefaultView(&m_Width, &m_Height, &m_TopBarSize), m_PreviousPoint(nullptr)
 {
 
 	//m_CurrentView = &m_WeeklyView;
 	//m_CurrentView = &m_DailyView;
-	m_CurrentView = &m_MonthlyView;
+	//m_CurrentView = &m_MonthlyView;
+	m_CurrentView = &m_DefaultView;
+
 }
 
 CPlannerView::~CPlannerView()
@@ -80,6 +87,7 @@ BOOL CPlannerView::PreCreateWindow(CREATESTRUCT& cs)
 
 void CPlannerView::OnDraw(CDC* pDC)
 {
+	static int enter = 0;
 	// Creating a CMemDC object
 	CMemDC DpDC(*pDC, this);
 
@@ -93,19 +101,12 @@ void CPlannerView::OnDraw(CDC* pDC)
 	ASSERT_VALID(pDoc);
 	if (!pDoc)
 		return;
+	pDoc->View = this;
+	int Redraw = SetPlannerObject(pDoc);
+
+	if (m_Planner != nullptr && m_CurrentView == &m_DefaultView) SetActiveSubview(SubView::Monthly);
 
 	CRect rect;
-
-	if (pDoc->m_NewPlanner != nullptr)
-	{
-		m_Planner = pDoc->m_NewPlanner;
-
-		m_CurrentView->SetNewPlannerObject(pDoc->m_NewPlanner);
-	}
-	else
-	{
-		pDoc->m_Planner = m_Planner;
-	}
 
 	// Gets the current client dimensions of this view object
 	this->GetClientRect(&rect);
@@ -116,10 +117,37 @@ void CPlannerView::OnDraw(CDC* pDC)
 
 	// Drawing the layout for the current selected view object
 	m_CurrentView->DrawLayout(pDC, this);
-
-
 }
 
+//
+//
+//
+//
+int CPlannerView::SetPlannerObject(CPlannerDoc* pDoc)
+{
+
+	if (pDoc->m_NewPlanner != nullptr)
+	{
+		m_Planner = pDoc->m_NewPlanner;
+
+		//m_CurrentView->SetNewPlannerObject(pDoc->m_NewPlanner);
+		m_DailyView.SetNewPlannerObject(pDoc->m_NewPlanner);
+		m_MonthlyView.SetNewPlannerObject(pDoc->m_NewPlanner);
+		m_WeeklyView.SetNewPlannerObject(pDoc->m_NewPlanner);
+
+		pDoc->m_NewPlanner = nullptr;
+
+		return 1;
+
+	}
+	else
+	{
+		pDoc->m_Planner = m_Planner;
+
+		return 0;
+	}
+
+}
 
 // CPlannerAppView printing
 
@@ -153,12 +181,6 @@ void CPlannerView::OnRButtonUp(UINT /* nFlags */, CPoint point)
 	OnContextMenu(this, point);
 }
 
-void CPlannerView::OnContextMenu(CWnd* /* pWnd */, CPoint point)
-{
-#ifndef SHARED_HANDLERS
-	theApp.GetContextMenuManager()->ShowPopupMenu(IDR_POPUP_EDIT, point.x, point.y, this, TRUE);
-#endif
-}
 
 
 // CPlannerAppView diagnostics
@@ -191,7 +213,8 @@ CPlannerDoc* CPlannerView::GetDocument() const // non-debug version is inline
 void CPlannerView::WindowDestroyed()
 {
 	// Decrement open dialog count
-	m_DialogCount--;
+	if(m_DialogCount - 1 >= 0)
+		m_DialogCount--;
 
 	// Resets the selected object, as it is no longer selected
 	m_CurrentView->ResetSelectedObject();
@@ -202,9 +225,105 @@ int CPlannerView::SetDayObject(CDay *Day)
 {
 
 	m_Planner->SetDayObject(Day);
-	InvalidateRect(Day->m_Cell);
+	InvalidateRect(nullptr);
 	return 0;
 }
 
-// CPlannerView message handlers in PLANNER.cpp
+void CPlannerView::SetActiveSubview(SubView SubViewType)
+{
 
+	switch (SubViewType)
+	{
+	case SubView::Monthly:
+		m_CurrentView = &m_MonthlyView;
+		break;
+	case SubView::Weekly:
+		m_CurrentView = &m_WeeklyView;
+		break;
+	case SubView::Daily:
+		m_CurrentView = &m_DailyView;
+		break;
+	case SubView::Default:
+		m_CurrentView = &m_DefaultView;
+		break;
+	default:
+		break;
+	}
+
+	InvalidateRect(nullptr);
+}
+
+
+//
+// CreateNewPlanner()
+// Creates a new planner dialog and uses the result to 
+// define a new named planner object
+// Returns true if newplanner dialog was succefully 
+// filled out.
+// Returns false if newplanner dialog was closed prematurely
+// and unseccessful
+//
+bool CPlannerView::CreateNewPlanner()
+{
+	CDialogNewPlanner aDlg;
+
+	// Opening a modal file dialog
+	if (aDlg.DoModal() == IDOK)
+	{
+		//delete m_Planner;
+
+		m_Planner = new CPlannerObject(aDlg.m_BegDateNumeric, aDlg.m_EndDateNumeric, aDlg.m_PlannerName);
+
+		m_DailyView.SetNewPlannerObject(m_Planner);
+		m_WeeklyView.SetNewPlannerObject(m_Planner);
+		m_MonthlyView.SetNewPlannerObject(m_Planner);
+
+		return true;
+	}
+	return false;
+}
+
+//
+//
+//
+//
+bool CPlannerView::OpenPreviousPlanner(CString &NewPathname)
+{
+	// Local vars
+	std::ifstream Input;
+	char temp;
+
+	Input.open("Previous.txt");
+
+	if (Input.fail()) return false;
+
+	for (int i = 0;; i++)
+	{
+		Input.get(temp);
+		if (temp == '\n' || Input.eof()) break;
+
+		NewPathname.AppendChar(temp);
+	}
+
+	//AfxMessageBox(NewPathname);
+	return true;
+}
+
+void CPlannerView::OpenFile(CString AbsPathname)
+{
+
+	// Opens the file
+	GetDocument()->OnOpenDocument(AbsPathname);
+
+	// Sets new document title
+	CString String;
+	String.Format(L"Plan-IT! V1.0.0 -- ");
+	String = String + AbsPathname;
+	(AfxGetMainWnd())->SetWindowText(String);
+
+	// Moves active subview to monthly view
+	SetActiveSubview(SubView::Monthly);
+
+}
+
+// CPlannerView message handlers in PLANNER.cpp

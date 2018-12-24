@@ -23,7 +23,7 @@ void CViewMonthly::DrawLayout(CDC* pDC, CPlannerView* View)
 	{
 		InitilizeWndVariables(View);
 		m_CurrentView = View;
-		m_CurrentMonth->ResetCells(m_WidthPortion, m_HeightPortion);
+		//m_CurrentMonth->ResetCells(m_WidthPortion, m_HeightPortion);
 	}
 
 	// Sets the default color for the background
@@ -80,6 +80,9 @@ void CViewMonthly::DrawCells(CDC* pDC)
 	CFont font;
 	CBrush NewBrush;
 	bool Enter = 0;
+	int BeginningDay = -1;
+	int CurrDayOfWeek = 0;
+	int Height = 0;
 
 	// Creating the font object
 	VERIFY(font.CreateFont(
@@ -106,15 +109,39 @@ void CViewMonthly::DrawCells(CDC* pDC)
 	NewBrush.CreateSolidBrush(RGB(221, 221, 235));
 	pDC->SetBkMode(TRANSPARENT);
 
+	// gets beg day of week (MON-SUN)
+	BeginningDay = m_CurrentMonth->ReturnBegDate();
+
 	// Traversing the linked list structure of each month, 
 	// and drawing the contents of each cell.
-	for (int i = 0; i < m_CurrentMonth->m_NumberDays; i++)
+	CurrDayOfWeek = BeginningDay;
+
+	for (int i = 0; i < m_CurrentMonth->m_NumberDays; i++, CurrDayOfWeek++)
 	{
 		// Getting the new day object and dimensions
 		CurrMonthDay = m_CurrentMonth->ReturnDayWithDate(i + 1);
 		// check if nullptr
 		if (CurrMonthDay == nullptr) break;
-		EnclosingRect = CurrMonthDay->m_Cell;
+
+		CString String;
+		String.Format(L"%d", CurrDayOfWeek);
+
+		// Moving to the next row of cells
+		if (((CurrDayOfWeek % *m_Columns) == 0) && CurrDayOfWeek > 0)
+		{
+			CurrDayOfWeek = 0;
+			Height += 1;
+		}
+
+		
+
+
+		// Modifying the dimensions of this object
+		EnclosingRect = CRect(CPoint(CurrDayOfWeek * m_WidthPortion, (Height * m_HeightPortion) + *m_TopBarSize),
+			CPoint((CurrDayOfWeek + 1) * m_WidthPortion, ((Height + 1) * m_HeightPortion) + *m_TopBarSize));
+
+		String.Format(L"%d, %d", (Height * m_HeightPortion) + *m_TopBarSize,((Height + 1) * m_HeightPortion) + *m_TopBarSize);
+		//AfxMessageBox(String);
 
 		// Resetting indicator for all day event display
 		Enter = 0;
@@ -134,7 +161,7 @@ void CViewMonthly::DrawCells(CDC* pDC)
 		// If this month is today, then draw something in the cell to indicate today
 		if (m_Planner->IsToday(CurrMonthDay))
 		{
-			CRect *NewEnclosingRect = new CRect(EnclosingRect.TopLeft(), 
+			CRect *NewEnclosingRect = new CRect(EnclosingRect.TopLeft(),
 				CPoint(EnclosingRect.BottomRight().x + 1, EnclosingRect.TopLeft().y + 5));
 			pDC->FillRect(NewEnclosingRect, new CBrush(RGB(82, 95, 120)));
 
@@ -213,7 +240,7 @@ void CViewMonthly::DrawCells(CDC* pDC)
 				// Getting the currday pointer
 				CurrDay = Prev->ReturnDayWithDate(Prev->m_NumberDays - (Beginning - 1 - i));
 				// Getting the new ecnlsoing rectangle dimensions for these cells
-				EnclosingRect = CRect(CPoint(m_WidthPortion * i, *m_TopBarSize), 
+				EnclosingRect = CRect(CPoint(m_WidthPortion * i, *m_TopBarSize),
 					CPoint(m_WidthPortion * (i + 1), *m_TopBarSize + m_HeightPortion));
 				// Printing out the day's date in top left corner of this cell
 				pDC->TextOutW(m_WidthPortion * i + 5, *m_TopBarSize + 5, string);
@@ -289,7 +316,7 @@ void CViewMonthly::DrawCells(CDC* pDC)
 				// Formatting date for each day
 				string.Format(L"%d / %d", Next->ReturnMonthType() + 1, Next->ReturnDayWithDate(l)->GetNumber());
 				// Creating the new enclosing rect structure for each cell
-				EnclosingRect = CRect(CPoint(m_WidthPortion * i, m_HeightPortion * (*m_Rows - 1) + *m_TopBarSize), 
+				EnclosingRect = CRect(CPoint(m_WidthPortion * i, m_HeightPortion * (*m_Rows - 1) + *m_TopBarSize),
 					CPoint(m_WidthPortion * (i + 1), m_HeightPortion * (*m_Rows) + *m_TopBarSize));
 				// Printing out the day's date in top left corner
 				pDC->TextOutW(m_WidthPortion * i + 5, m_HeightPortion * (*m_Rows - 1) + *m_TopBarSize + 5, string);
@@ -386,6 +413,8 @@ CString CViewMonthly::FormatEvent(CPlannerEvent *Event)
 			string.Format(L"%s @ %s", *Event->GetDescription(), Event->GetTimeStandardForm());
 		}
 	}
+
+	if (Event->IsCompleted()) string = string + _T(" -- Completed");
 
 	// Return the new string
 	return string;
@@ -501,28 +530,41 @@ bool CViewMonthly::SetObject(CPoint Point, CDay **DayObject)
 	CLLNode* Curr;
 	CRect EnclosingRect;
 	CString string;
+	int CurrDayOfWeek = m_CurrentMonth->ReturnBegDate();
+	int Height = 0;
 
 	// Traversing the head of the list of days within the month object
 	Curr = m_CurrentMonth->GetList();
 	Curr->m_AuxPtr = Curr->GetHead();
 
-	// Getting each cell's dimensions
-	EnclosingRect = Curr->m_AuxPtr->Object->m_Cell;
+	if (Curr->m_AuxPtr == nullptr) return false;
+
 
 	// Traversing the linked list structure of each month, 
 	// and drawing the contents of each cell.
-	for (int i = 0; i < m_CurrentMonth->m_NumberDays; i++)
+	for (int i = 0; i < m_CurrentMonth->m_NumberDays; i++, CurrDayOfWeek++)
 	{
+		// Moving to the next row of cells
+		if (((CurrDayOfWeek % *m_Columns) == 0) && CurrDayOfWeek > 0)
+		{
+			CurrDayOfWeek = 0;
+			Height += 1;
+		}
+
+		// Modifying the dimensions of this object
+		EnclosingRect = CRect(CPoint(CurrDayOfWeek * m_WidthPortion, (Height * m_HeightPortion) + *m_TopBarSize),
+			CPoint((CurrDayOfWeek + 1) * m_WidthPortion, ((Height + 1) * m_HeightPortion) + *m_TopBarSize));
+
 		// Checks the coordinates for the mouse click
-		if (Point.x >= Curr->m_AuxPtr->Object->m_Cell.TopLeft().x &&
-			Point.y >= Curr->m_AuxPtr->Object->m_Cell.TopLeft().y &&
-			Point.x <= Curr->m_AuxPtr->Object->m_Cell.BottomRight().x &&
-			Point.y <= Curr->m_AuxPtr->Object->m_Cell.BottomRight().y)
+		if (Point.x >= EnclosingRect.TopLeft().x &&
+			Point.y >= EnclosingRect.TopLeft().y &&
+			Point.x <= EnclosingRect.BottomRight().x &&
+			Point.y <= EnclosingRect.BottomRight().y)
 		{
 			// Selects the appropriate cell in the view
 			*DayObject = Curr->m_AuxPtr->Object;
 			m_SelectedDay = Curr->m_AuxPtr->Object;
-			m_SelectedDay->m_Cell = EnclosingRect;
+			m_SelectedRect = EnclosingRect;
 
 			m_PreviousSelectedDay = m_SelectedDay;
 
@@ -534,8 +576,6 @@ bool CViewMonthly::SetObject(CPoint Point, CDay **DayObject)
 		// Check if nullptr
 		if (Curr->m_AuxPtr == nullptr) break;
 
-		// Set the rectangle as the next cell's rectangle
-		EnclosingRect = Curr->m_AuxPtr->Object->m_Cell;
 	}
 
 	int Beginning = m_CurrentMonth->ReturnBegDate();
@@ -603,6 +643,8 @@ CMenu* CViewMonthly::HandleContextMenu(CWnd* pWnd, CPoint Point)
 	CMenu Menu;
 	CRect EnclosingRect;
 	CDay* CurrDay = nullptr;
+	int CurrDayOfWeek = m_CurrentMonth->ReturnBegDate();
+	int Height = 0;
 
 	// Get the cursor position
 	GetCursorPos(&m_CursorPosition);
@@ -611,13 +653,25 @@ CMenu* CViewMonthly::HandleContextMenu(CWnd* pWnd, CPoint Point)
 
 	// Traversing the linked list structure of each month, 
 	// and drawing the contents of each cell.
-	for (int i = 0; i < m_CurrentMonth->m_NumberDays && (CurrDay = m_CurrentMonth->ReturnDayWithDate(i + 1)) != nullptr ; i++)
+	for (int i = 0; i < m_CurrentMonth->m_NumberDays && (CurrDay = m_CurrentMonth->ReturnDayWithDate(i + 1)) != nullptr ; i++, CurrDayOfWeek++)
 	{
+
+		// Moving to the next row of cells
+		if (((CurrDayOfWeek % *m_Columns) == 0) && CurrDayOfWeek > 0)
+		{
+			CurrDayOfWeek = 0;
+			Height += 1;
+		}
+
+		// Modifying the dimensions of this object
+		EnclosingRect = CRect(CPoint(CurrDayOfWeek * m_WidthPortion, (Height * m_HeightPortion) + *m_TopBarSize),
+			CPoint((CurrDayOfWeek + 1) * m_WidthPortion, ((Height + 1) * m_HeightPortion) + *m_TopBarSize));
+
 		// Checks the coordinates for the mouse click
-		if (m_CursorPosition.x >= CurrDay->m_Cell.TopLeft().x &&
-			m_CursorPosition.y >= CurrDay->m_Cell.TopLeft().y &&
-			m_CursorPosition.x <= CurrDay->m_Cell.BottomRight().x &&
-			m_CursorPosition.y <= CurrDay->m_Cell.BottomRight().y)
+		if (m_CursorPosition.x >= EnclosingRect.TopLeft().x &&
+			m_CursorPosition.y >= EnclosingRect.TopLeft().y &&
+			m_CursorPosition.x <= EnclosingRect.BottomRight().x &&
+			m_CursorPosition.y <= EnclosingRect.BottomRight().y)
 		{
 			// Selects the appropriate cell in the view
 			m_ContextMenuSelectedDay = CurrDay;

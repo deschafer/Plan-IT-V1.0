@@ -12,6 +12,7 @@ public:
 	virtual ~CDay(void) {}
 
 	CDay(const int DayNumber, const int DayOfWeek, CPoint TopLeft, CPoint BottomRight, int Month, int Year);
+	CDay(const int DayNumber, const int DayOfWeek, int Month, int Year);
 	CDay(void) {};
 
 	CLLNode_Event* GetPlannerEvent(int x) { return EventListArray[x]; }
@@ -34,8 +35,6 @@ public:
 	void MarkNextEventAsCompleted(bool AllDay, int time = 0);
 
 	virtual void Serialize(CArchive &ar) override;
-
-	CRect m_Cell;			// Holds the dimensions of this object
 
 protected:
 	unsigned m_DayNumber;	// Part of this day object's date

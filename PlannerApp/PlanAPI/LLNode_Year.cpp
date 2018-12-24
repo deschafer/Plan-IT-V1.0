@@ -152,5 +152,7 @@ void CLLNode_Year::Serialize(CArchive& ar)
 			}
 		}
 
+		Curr->next = nullptr;
+
 	}
 }

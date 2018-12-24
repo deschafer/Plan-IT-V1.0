@@ -4,6 +4,8 @@
 #include "..\PlanAPI\Year.h"
 #include "..\PlanAPI\Month.h"
 
+enum class SubView{Monthly, Weekly, Daily, Default};
+
 static class CDialogAddEvent;
 
 // Base class for each of the views for this application
@@ -41,7 +43,7 @@ public:
 	virtual void DrawTopBarSection(CDC* pDC, CPlannerView* View);
 	virtual void DrawLayout(CDC* pDC, CPlannerView* View) {};
 	virtual void Update() { m_SizeChanged = 1; }
-	virtual void SetNewPlannerObject(CPlannerObject* NewPlanner) { m_Planner = NewPlanner; }
+	virtual void SetNewPlannerObject(CPlannerObject* NewPlanner) { m_Planner = NewPlanner; m_SizeChanged = 1; }
 	virtual bool SetObject(CPoint Point, CDay &DayObject) { return 0; }	// Finds the object associated with this point on the screen
 	virtual bool SetObject(CPoint Point, CDay *DayObject) { return 0; }	// Finds the object associated with this point on the screen
 	virtual bool SetObject(CPoint Point, CDay **DayObject) { return 0; }	// Finds the object associated with this point on the screen
@@ -87,6 +89,7 @@ private:
 
 	CDay* m_SelectedDay;			// The selected day object, used for highlighting
 	CDay* m_PreviousSelectedDay;	// The previous selected day for hotkey
+	CRect m_SelectedRect;
 
 	CDay* m_ContextMenuSelectedDay;
 
@@ -103,7 +106,7 @@ public:
 	virtual bool SetObject(CPoint Point, CDay** DayObject) override;
 	virtual bool ResetSelectedObject() override;
 	virtual CDay* GetSelectedObject() { return m_SelectedDay; }
-	virtual CRect* GetSelectedRect() { return &m_SelectedDay->m_Cell; }
+	virtual CRect* GetSelectedRect() { return &m_SelectedRect; }
 	virtual int HandleKeyboardMsg(UINT nChar);
 
 	virtual CMenu* HandleContextMenu(CWnd* pWnd, CPoint Point) override;
@@ -193,6 +196,8 @@ private:
 	void SetDay();
 
 	int m_LeftSideStringSpace;
+	int m_EventButtonWidthMax;
+	int m_EventButtonWidthMin;
 
 
 	int m_TimeArray[24];	// Array to hold the time strings
@@ -247,3 +252,20 @@ public:
 	~CViewDaily() {};
 };
 
+// Class object for the daily view
+class CViewDefault : public CViewBase
+{
+private:
+
+	//void DrawMainBox(int WidthMin, int HeightMin, int WidthMax, int HeightMax);
+	void DrawMainBox(CDC* pDC, int WidthMin, int HeightMin, int WidthMax, int HeightMax);
+
+public:
+
+	virtual void DrawLayout(CDC* pDC, CPlannerView* View) override;
+	virtual void InitilizeWndVariables(CPlannerView* View) override {}
+	virtual bool SetObject(CPoint Point, CDay** DayObject) override;
+
+
+	CViewDefault(int *m_Width, int *m_Height, int * TopBarPortion);
+};

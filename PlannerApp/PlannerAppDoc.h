@@ -34,6 +34,11 @@ public:
 
 	CPlannerObject* m_Planner;
 	CPlannerObject* m_NewPlanner;
+
+	CView* View;
+
+	int CreatePreviousOpenedFile(CString Filename);
+	
 #ifdef _DEBUG
 	virtual void AssertValid() const;
 	virtual void Dump(CDumpContext& dc) const;
@@ -49,4 +54,6 @@ protected:
 	// Helper function that sets search content for a Search Handler
 	void SetSearchContent(const CString& value);
 #endif // SHARED_HANDLERS
+public:
+	virtual BOOL OnOpenDocument(LPCTSTR lpszPathName);
 };

@@ -211,6 +211,8 @@ void CViewBase::DrawMonthSection(CDC* pDC, CPlannerView* View)
 	pDC->TextOutW(5, 0, m_MonthStrings[m_CurrentMonth->ReturnMonthType()]);
 	// Draw the current year date text
 	pDC->TextOutW(pDC->GetTextExtent(m_MonthStrings[m_CurrentMonth->ReturnMonthType()]).cx + 25, 0, YearDate);
+	// Drawing the current planner name
+	pDC->TextOutW(*m_Width - pDC->GetTextExtent(m_Planner->ReturnPlannerName()).cx - 10 ,0, m_Planner->ReturnPlannerName());
 	// Select default font
 	pDC->SelectObject(def_font);
 

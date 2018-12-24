@@ -33,8 +33,18 @@
 #define IDD_ADD_EVENT                   312
 #define IDB_BITMAP1                     314
 #define ID_MENU_EVENT                   315
-#define IDCANCEL                        1000
+#define IDD_NEW_PLN                     316
+#define IDB_WELCOME                     318
+#define IDC_STATIC_BEG_TIME             1001
+#define IDC_STATIC_END_TIME             1002
+#define IDC_STATIC_EVENT_NAME           1003
+#define IDC_STATIC_PLACE                1004
 #define IDC_EVENT_DESCRIP               1016
+#define IDC_BEG_YEAR                    1016
+#define IDC_SPIN1                       1017
+#define IDC_PLN_NAME                    1019
+#define IDC_END_YEAR                    1020
+#define IDC_SPIN2                       1021
 #define IDC_BEG_DATE                    1023
 #define IDC_END_DATE                    1025
 #define IDC_EVENT_PLACE                 1026
@@ -48,14 +58,28 @@
 #define ID_DAYSETTINGS_MARKTHISEVENTASCOMPLETED 32776
 #define ID_MONTHLY_GOTOTHISDAY          32777
 #define ID_MONTHLY_GOTOTHISWEEK         32778
+#define ID_NEXT_MONTH                   32779
+#define ID_PREV_MONTH                   32780
+#define ID_YEAR_PLUS                    32781
+#define ID_YEAR_MINUS                   32782
+#define ID_VIEW_MONTHLY                 32783
+#define ID_VIEW_WEEKLY                  32784
+#define ID_VIEW_DAILY                   32785
+#define ID_OPEN_DOC                     32795
+#define ID_FILE_OPENPLANNER             32796
+#define ID_SAVE_PLANNER                 32797
+#define ID_VIEW_STARTPAGE               32798
+#define ID_FILE_SAVEPLANNER             32799
+#define ID_FILE_SAVEPLANNERAS           32800
+#define ID_SAVE_PLANNER_AS              32801
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        316
-#define _APS_NEXT_COMMAND_VALUE         32779
-#define _APS_NEXT_CONTROL_VALUE         1001
+#define _APS_NEXT_RESOURCE_VALUE        319
+#define _APS_NEXT_COMMAND_VALUE         32802
+#define _APS_NEXT_CONTROL_VALUE         1024
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif

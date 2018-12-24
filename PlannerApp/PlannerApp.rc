@@ -88,6 +88,8 @@ IDR_MAINFRAME_256       BITMAP                  "res\\Toolbar256.bmp"
 
 IDB_BITMAP1             BITMAP                  "C:\\Users\\Damon\\source\\repos\\planner_prelim\\planner_prelim\\res\\Toolbar256.bmp"
 
+IDB_WELCOME             BITMAP                  "res\\welcomeTxt.bmp"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -108,18 +110,24 @@ BEGIN
     BUTTON      ID_APP_ABOUT
 END
 
-IDR_MAINFRAME_256 TOOLBAR 16, 15
+IDR_MAINFRAME_256 TOOLBAR 30, 19
 BEGIN
-    BUTTON      ID_FILE_NEW
-    BUTTON      ID_FILE_OPEN
+    BUTTON      ID_FILE_OPENPLANNER
     BUTTON      ID_FILE_SAVE
     SEPARATOR
-    BUTTON      ID_EDIT_CUT
-    BUTTON      ID_EDIT_COPY
-    BUTTON      ID_EDIT_PASTE
-    SEPARATOR
     BUTTON      ID_FILE_PRINT
-    BUTTON      ID_APP_ABOUT
+    SEPARATOR
+    BUTTON      ID_PREV_MONTH
+    BUTTON      ID_NEXT_MONTH
+    SEPARATOR
+    BUTTON      ID_YEAR_MINUS
+    BUTTON      ID_YEAR_PLUS
+    SEPARATOR
+    BUTTON      ID_VIEW_MONTHLY
+    BUTTON      ID_VIEW_WEEKLY
+    BUTTON      ID_VIEW_DAILY
+    SEPARATOR
+    BUTTON      ID_SAVE_PLANNER
 END
 
 
@@ -133,7 +141,9 @@ BEGIN
     POPUP "&File"
     BEGIN
         MENUITEM "&New\tCtrl+N",                ID_FILE_NEW
-        MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN
+        MENUITEM "&Open Planner...",            ID_FILE_OPENPLANNER
+        MENUITEM "Save Planner",                ID_SAVE_PLANNER
+        MENUITEM "Save Planner As...",          ID_SAVE_PLANNER_AS
         MENUITEM "&Save\tCtrl+S",               ID_FILE_SAVE
         MENUITEM "Save &As...",                 ID_FILE_SAVE_AS
         MENUITEM SEPARATOR
@@ -141,23 +151,27 @@ BEGIN
         MENUITEM "Print Pre&view",              ID_FILE_PRINT_PREVIEW
         MENUITEM "P&rint Setup...",             ID_FILE_PRINT_SETUP
         MENUITEM SEPARATOR
-        MENUITEM "Sen&d...",                    ID_FILE_SEND_MAIL
-        MENUITEM SEPARATOR
-        MENUITEM "Recent File",                 ID_FILE_MRU_FILE1, GRAYED
+        MENUITEM "Recent File",                 ID_FILE_MRU_FILE1
         MENUITEM SEPARATOR
         MENUITEM "E&xit",                       ID_APP_EXIT
     END
-    POPUP "&Edit"
+    POPUP "Month"
     BEGIN
-        MENUITEM "&Undo\tCtrl+Z",               ID_EDIT_UNDO
-        MENUITEM SEPARATOR
-        MENUITEM "Cu&t\tCtrl+X",                ID_EDIT_CUT
-        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
-        MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE
+        MENUITEM "Next Month",                  ID_NEXT_MONTH
+        MENUITEM "Prev Month",                  ID_PREV_MONTH
     END
-    POPUP "&Help"
+    POPUP "Year"
     BEGIN
-        MENUITEM "&About PlannerApp...",        ID_APP_ABOUT
+        MENUITEM "Next Year",                   ID_YEAR_PLUS
+        MENUITEM "Previous Year",               ID_YEAR_MINUS
+    END
+    POPUP "View"
+    BEGIN
+        MENUITEM "Monthly ",                    ID_VIEW_MONTHLY
+        MENUITEM "Weekly",                      ID_VIEW_WEEKLY
+        MENUITEM "Daily",                       ID_VIEW_DAILY
+        MENUITEM SEPARATOR
+        MENUITEM "Start Page",                  ID_VIEW_STARTPAGE
     END
 END
 
@@ -269,23 +283,38 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,113,41,50,14,WS_GROUP
 END
 
-IDD_ADD_EVENT DIALOGEX 0, 0, 309, 143
+IDD_ADD_EVENT DIALOGEX 0, 0, 265, 116
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Dialog"
-FONT 8, "MS Shell Dlg", 400, 0, 0x1
+CAPTION "Add New Event"
+FONT 10, "MS Shell Dlg", 400, 0, 0x0
 BEGIN
-    CONTROL         "",IDC_EVENT_DESCRIP,"RichEdit20W",ES_AUTOHSCROLL | WS_BORDER | WS_TABSTOP,7,23,291,31
-    CONTROL         "",IDC_EVENT_PLACE,"RichEdit20W",ES_AUTOHSCROLL | WS_BORDER | WS_TABSTOP,7,86,138,23
-    CONTROL         "",IDC_BEG_DATE,"RichEdit20W",ES_AUTOHSCROLL | ES_WANTRETURN | ES_NUMBER | WS_BORDER | WS_TABSTOP,247,74,42,16
-    CONTROL         "",IDC_END_DATE,"RichEdit20W",ES_AUTOHSCROLL | ES_WANTRETURN | ES_NUMBER | WS_BORDER | WS_TABSTOP,247,95,42,16
-    DEFPUSHBUTTON   "OK",IDOK,129,118,91,18
-    PUSHBUTTON      "Cancel",IDCANCEL,225,118,73,18
-    LTEXT           "Event Details",IDC_DESCRIPTION_ENTRY,143,9,118,14
-    LTEXT           "Event Name:",IDC_STATIC,7,8,133,10
-    LTEXT           "Leave blank for an all day event.",IDC_TIME_DESCRIPT,161,59,137,10
-    LTEXT           "End Time",IDC_STATIC,183,94,42,16
-    LTEXT           "Event Place:",IDC_STATIC,7,71,140,10
-    LTEXT           "Beginning Time",IDC_STATIC,161,77,67,16
+    CONTROL         "",IDC_EVENT_DESCRIP,"RichEdit20W",ES_AUTOHSCROLL | WS_TABSTOP,6,19,250,25
+    CONTROL         "",IDC_EVENT_PLACE,"RichEdit20W",ES_AUTOHSCROLL | WS_TABSTOP,6,70,118,19
+    CONTROL         "",IDC_BEG_DATE,"RichEdit20W",ES_AUTOHSCROLL | ES_WANTRETURN | ES_NUMBER | WS_TABSTOP,212,60,36,13
+    CONTROL         "",IDC_END_DATE,"RichEdit20W",ES_AUTOHSCROLL | ES_WANTRETURN | ES_NUMBER | WS_TABSTOP,212,77,36,13
+    DEFPUSHBUTTON   "Add Event",IDOK,126,96,123,15
+    LTEXT           "Event Name:",IDC_STATIC_EVENT_NAME,6,7,114,8
+    LTEXT           "Leave blank for an all day event.",IDC_TIME_DESCRIPT,138,48,118,8
+    LTEXT           "End Time",IDC_STATIC_END_TIME,157,77,36,13
+    LTEXT           "Event Place:",IDC_STATIC_PLACE,6,58,120,8
+    LTEXT           "Beginning Time",IDC_STATIC_BEG_TIME,138,63,58,13
+    LTEXT           "Event Details",IDC_DESCRIPTION_ENTRY,123,8,126,9
+END
+
+IDD_NEW_PLN DIALOGEX 0, 0, 295, 72
+STYLE DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Create A New Planner"
+FONT 11, "Segoe UI", 400, 0, 0x0
+BEGIN
+    CONTROL         "",IDC_PLN_NAME,"RichEdit20W",ES_AUTOHSCROLL | WS_TABSTOP,24,18,258,17
+    CONTROL         "",IDC_BEG_YEAR,"RichEdit20W",ES_AUTOHSCROLL | ES_NUMBER | WS_TABSTOP,24,54,60,12
+    CONTROL         "",IDC_SPIN1,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS,84,53,10,14
+    CONTROL         "",IDC_END_YEAR,"RichEdit20W",ES_AUTOHSCROLL | ES_NUMBER | WS_TABSTOP,107,54,61,12
+    CONTROL         "",IDC_SPIN2,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS,168,53,10,14
+    DEFPUSHBUTTON   "Create New Planner",IDOK,186,53,97,13
+    LTEXT           "Enter a Name for this Planner",IDC_STATIC,7,7,99,8
+    LTEXT           "Ending Year",IDC_STATIC,96,41,71,9
+    LTEXT           "Beginning Year",IDC_STATIC,6,41,66,8
 END
 
 
@@ -347,9 +376,15 @@ BEGIN
     IDD_ADD_EVENT, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 302
         TOPMARGIN, 7
-        BOTTOMMARGIN, 136
+    END
+
+    IDD_NEW_PLN, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 263
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 53
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -361,6 +396,11 @@ END
 //
 
 IDD_ADD_EVENT AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_NEW_PLN AFX_DIALOG_LAYOUT
 BEGIN
     0
 END
@@ -498,6 +538,27 @@ END
 STRINGTABLE
 BEGIN
     IDS_EDIT_MENU           "Edit"
+END
+
+STRINGTABLE
+BEGIN
+    ID_NEXT_MONTH           "Cycle to the next month"
+    ID_PREV_MONTH           "Cylce to previous mont\nCycle to preious month"
+    ID_YEAR_PLUS            "Move forward one year\nMove to the next year in this planner."
+    ID_YEAR_MINUS           "Move backwards one year\nMove backwards on year in this planner."
+END
+
+STRINGTABLE
+BEGIN
+    ID_VIEW_DAILY           "Switch to the Daily View"
+    ID_OPEN_DOC             "Open a saved planner document."
+    ID_FILE_OPENPLANNER     "Open a saved planner.\nOpen A Save Planner File."
+    ID_SAVE_PLANNER         "Save The Current Planner Object"
+END
+
+STRINGTABLE
+BEGIN
+    ID_SAVE_PLANNER_AS      "Save The Current Planner As a New File"
 END
 
 #endif    // English (United States) resources

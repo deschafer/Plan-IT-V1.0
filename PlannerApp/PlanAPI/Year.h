@@ -29,7 +29,7 @@ public:
 	virtual void Serialize(CArchive& ar) override;
 
 	// CTOR for a CYear object
-	CYear(int YearDate, CPlannerView* view);
+	CYear(int YearDate);
 
 	CYear() {};
 	virtual ~CYear() {};

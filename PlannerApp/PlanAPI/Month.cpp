@@ -8,30 +8,20 @@
 
 IMPLEMENT_SERIAL(CMonth, CObject, 1000);
 
-CMonth::CMonth(int NumberDays, int WidthPortion, int HeightPortion, unsigned Rows, unsigned Columns, int topSize, int BegDate, int MonthType, int Year)
+CMonth::CMonth(int NumberDays, int BegDate, int MonthType, int Year)
 {
-
-	// Local Variables
-	CRect Temp;
-	unsigned TotalHeight = HeightPortion * Columns;
-	int DayOfWeek;
+	// Local vars
+	int DayOfWeek = 0;
 
 	// Setting appropriate variables
 	m_NumberDays = NumberDays;
-	m_Rows = Rows;
-	m_Columns = Columns;
-	m_WidthPortion = WidthPortion;
-	m_HeightPortion = HeightPortion;
-	m_TopSize = topSize;
 	m_BegDay = BegDate;
 	m_MonthType = MonthType;
 	m_Year = Year;
-
 	DayOfWeek = BegDate;
-	list_Days = new CLLNode;
-	// Draws columns based on amount of colomns and current
-	// dimensions of client area
 
+	// Creating list to contain the days
+	list_Days = new CLLNode;
 
 	// This is creating the initial list of m_NumberDays day objects,
 	// so the loop in within this function.
@@ -42,32 +32,11 @@ CMonth::CMonth(int NumberDays, int WidthPortion, int HeightPortion, unsigned Row
 		if (DayOfWeek == 7)
 			DayOfWeek = 0;
 		// Adding each day element with the correct inital dimensions
-		list_Days->EnQueue(new CDay(i + 1, DayOfWeek, CPoint(0, i*WidthPortion), CPoint(HeightPortion, i*WidthPortion), m_MonthType, m_Year));
+		list_Days->EnQueue(new CDay(i + 1, DayOfWeek, m_MonthType, m_Year));
 	}
 
 }
 
-
-// This function needs to reset sizes of all the day objects within this month object
-void CMonth::ResetCells(int widthPortion, int heightPortion)
-{
-	m_HeightPortion = heightPortion;
-	m_WidthPortion = widthPortion;
-
-	// Passes this object to the linked list class
-	list_Days->ResetSizes(this);
-
-}
-
-
-void CMonth::ReturnDimensions(int &WidthPortion, int &HeightPortion, int &Rows, int &Columns, int &topSize)
-{
-	WidthPortion = m_WidthPortion;
-	HeightPortion = m_HeightPortion;
-	Rows = m_Rows;
-	Columns = m_Columns;
-	topSize = m_TopSize;
-}
 
 bool CMonth::IsSixRowDisplay()
 {
@@ -128,12 +97,7 @@ void CMonth::Serialize(CArchive &ar)
 	// Writing
 	if (ar.IsStoring())
 	{
-		ar << m_WidthPortion
-			<< m_HeightPortion
-			<< m_Rows
-			<< m_Columns
-			<< m_TopSize
-			<< m_BegDay
+		ar << m_BegDay
 			<< m_MonthType
 			<< m_Year
 			<< m_NumberDays
@@ -144,12 +108,7 @@ void CMonth::Serialize(CArchive &ar)
 	{
 		list_Days = new CLLNode;
 
-		ar >> m_WidthPortion
-			>> m_HeightPortion
-			>> m_Rows
-			>> m_Columns
-			>> m_TopSize
-			>> m_BegDay
+		ar >> m_BegDay
 			>> m_MonthType
 			>> m_Year
 			>> m_NumberDays

@@ -1,12 +1,11 @@
-// C:\Users\Damon\source\repos\PlannerApp\PlannerApp\Dialog\DialogAddEvent.cpp : implementation file
+// DialogAddEvent.cpp : implementation file
 //
 
 #include <cctype>
 #include "stdafx.h"
-#include "..\PlannerApp.h"
+#include "..\plannerApp.h"
 #include "DialogAddEvent.h"
 #include "afxdialogex.h"
-
 
 bool Validate(CString str);
 
@@ -16,15 +15,10 @@ IMPLEMENT_DYNAMIC(CDialogAddEvent, CDialogEx)
 
 CDialogAddEvent::CDialogAddEvent(CWnd* pParent /*=NULL*/)
 	: CDialogEx(IDD_ADD_EVENT, pParent), m_AllDayEvent(0), m_Day(new CDay)
-{
-
-}
+{}
 
 CDialogAddEvent::~CDialogAddEvent()
-{
-}
-
-
+{}
 
 void CDialogAddEvent::DoDataExchange(CDataExchange* pDX)
 {
@@ -38,14 +32,13 @@ void CDialogAddEvent::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_END_DATE, m_EndEdit);
 	DDX_Control(pDX, IDC_BEG_DATE, m_BegEdit);
 	DDX_Control(pDX, IDC_DESCRIPTION_ENTRY, m_EventDescript);
+	DDX_Control(pDX, IDOK, m_OKButton);
 }
 
 
 BEGIN_MESSAGE_MAP(CDialogAddEvent, CDialogEx)
 	ON_WM_CTLCOLOR()
 	ON_BN_CLICKED(IDOK, &CDialogAddEvent::OnBnClickedOk)
-	ON_BN_CLICKED(IDCANCEL, &CDialogAddEvent::OnBnClickedCancel)
-	ON_WM_DESTROY()
 	ON_EN_CHANGE(IDC_END_DATE, &CDialogAddEvent::OnEnChangeEndDate)
 END_MESSAGE_MAP()
 
@@ -71,12 +64,37 @@ BOOL CDialogAddEvent::OnInitDialog()
 	m_DescriptionEdit.SetBackgroundColor(FALSE, RGB(180, 180, 180));
 	m_BegEdit.SetBackgroundColor(FALSE, RGB(180, 180, 180));
 	m_EndEdit.SetBackgroundColor(FALSE, RGB(180, 180, 180));
+	m_OKButton.EnableWindowsTheming(FALSE);     
+	m_OKButton.SetFaceColor(RGB(180, 180, 180));     
+	m_OKButton.SetTextColor(RGB(0, 0, 0)); 
 
+	VERIFY(OkFont.CreateFont(
+		20,                        // nHeight
+		0,                         // nWidth
+		0,                         // nEscapement
+		0,                         // nOrientation
+		FW_LIGHT,                 // nWeight
+		FALSE,                     // bItalic
+		FALSE,                     // bUnderline
+		0,                         // cStrikeOut
+		ANSI_CHARSET,              // nCharSet
+		OUT_DEFAULT_PRECIS,        // nOutPrecision
+		CLIP_DEFAULT_PRECIS,       // nClipPrecision
+		DEFAULT_QUALITY,           // nQuality
+		DEFAULT_PITCH | FF_SWISS,  // nPitchAndFamily
+		_T("Calibri")));
+
+	m_OKButton.SetFont(&OkFont);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 				  // EXCEPTION: OCX Property Pages should return FALSE
 }
 
+//
+// OnCtlColor()
+// Used to set styles for some of the dialog
+// controls prior to being visible
+//
 HBRUSH CDialogAddEvent::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
 
@@ -124,6 +142,11 @@ HBRUSH CDialogAddEvent::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 
 }
 
+//
+// CheckData()
+// Verfies that all data is valid and correct
+// before submitting.
+//
 bool CDialogAddEvent::CheckData()
 {
 
@@ -318,6 +341,12 @@ bool CDialogAddEvent::CheckTimes()
 
 }
 
+//
+// ConvertToMTime()
+// Converts the time in 12 hour format into its
+// 0 - 23 hour equivalent -- pm flag indicates if time
+// is pm.
+//
 int CDialogAddEvent::ConvertToMTime(int Time, bool pm)
 {
 	if (pm)
@@ -327,7 +356,6 @@ int CDialogAddEvent::ConvertToMTime(int Time, bool pm)
 			return 23;
 		else
 			return Time + 12;
-
 	}
 	else
 	{
@@ -347,46 +375,25 @@ bool Validate(CString str)
 	return 1;
 }
 
+//
+// OnBnClickedOk()
+// Handler for the OK button --
+// verifies that all information is inputted
+// correctly before closing the dialog
+//
 void CDialogAddEvent::OnBnClickedOk()
 {
-	// TODO: Add your control notification handler code here
 
 	if (CheckData())
 	{
-		//if (m_Description == (" ")) AfxMessageBox(_T("ERROR"));
-		CPlannerEvent* NewEvent = new CPlannerEvent(m_Description, &m_Place, m_BegDate, m_EndDate, m_BegDateMinutes, m_EndDateMinutes, m_AllDayEvent);
-
-		//View->SendData(NewEvent);
+		CPlannerEvent* NewEvent = new CPlannerEvent(m_Description, &m_Place, m_BegDate, 
+			m_EndDate, m_BegDateMinutes, m_EndDateMinutes, m_AllDayEvent);
 		m_Day->AddEvent(NewEvent);
 
 		View->SetDayObject(m_Day);
-		//View->WindowDestroyed();
-		//View->UpdateView();
 		DestroyWindow();
 	}
 
-
-}
-
-
-void CDialogAddEvent::OnBnClickedCancel()
-{
-	//View->UpdateView();
-	View->WindowDestroyed();
-
-
-	CDialogEx::OnCancel();
-}
-
-
-void CDialogAddEvent::OnDestroy()
-{
-	//View->UpdateView();
-	View->WindowDestroyed();
-
-	CDialogEx::OnDestroy();
-
-	// TODO: Add your message handler code here
 }
 
 
@@ -400,13 +407,18 @@ void CDialogAddEvent::OnEnChangeEndDate()
 	// TODO:  Add your control notification handler code here
 }
 
+//
+// SetBegTime()
+// Sets the beginning time for this dialog 
+//
 bool CDialogAddEvent::SetBegTime(int Hours, int Minutes)
 {
-
+	// Local Vars
 	CString Time;
 	int NewHours;
 	bool pm = 0;
 
+	// Formatting the hours into 12 hour format
 	if (Hours == 0)
 		NewHours = 12;
 	else if (Hours < 12)
@@ -441,6 +453,10 @@ bool CDialogAddEvent::SetBegTime(int Hours, int Minutes)
 	return 1;
 }
 
+//
+// SetEndTime
+// Sets the end time, and sets the variables in the edit boxes
+//
 bool CDialogAddEvent::SetEndTime(int Hours, int Minutes)
 {
 	// Local Vars
@@ -448,6 +464,7 @@ bool CDialogAddEvent::SetEndTime(int Hours, int Minutes)
 	int NewHours;
 	bool pm = 0;
 
+	// Formatting time into 12 hour format
 	if (Hours == 0)
 		NewHours = 12;
 	else if (Hours < 12)
@@ -501,7 +518,32 @@ BOOL CDialogAddEvent::PreTranslateMessage(MSG* pMsg)
 
 	BOOL DefaultProcedure = CDialogEx::PreTranslateMessage(pMsg);
 
-
+	
 	if (CancelIndicator) CDialogEx::OnCancel();
 	return DefaultProcedure;
+}
+
+//
+// OnCancel()
+// Handler for the cancel button
+//
+void CDialogAddEvent::OnCancel()
+{
+	//View->UpdateView();
+	View->WindowDestroyed();
+
+
+	CDialogEx::OnCancel();
+}
+
+//
+// DestroyWindow()
+// OVerride for when this dialog is destroyed
+//
+BOOL CDialogAddEvent::DestroyWindow()
+{
+	//View->UpdateView();
+	View->WindowDestroyed();
+
+	return CDialogEx::DestroyWindow();
 }

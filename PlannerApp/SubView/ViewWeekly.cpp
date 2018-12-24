@@ -22,7 +22,7 @@ CViewWeekly::CViewWeekly(unsigned *Rows, unsigned *Columns, int *Height,
 	}
 	
 	// Sets the number of rows for this view
-	*m_Rows = 10;
+	*m_Rows = 8;
 
 }
 
@@ -41,7 +41,7 @@ void CViewWeekly::InitilizeWndVariables(CPlannerView* View)
 	m_CurrentMonth = m_Year->CurrentMonth();
 
 	// Resets row size
-	*m_Rows = 10;
+	*m_Rows = 8;
 
 	// Sets the appropriate dimensions for each row or column based
 	// on the total number of rows or columns set
@@ -100,7 +100,6 @@ void CViewWeekly::DrawLayout(CDC* pDC, CPlannerView* View)
 	{
 		m_CurrentView = View;
 		InitilizeWndVariables(View);
-		m_CurrentMonth->ResetCells(m_WidthPortion, m_HeightPortion);
 	}
 
 	// Sets the default color for the background
@@ -615,6 +614,8 @@ void CViewWeekly::DrawColumn(CPlannerView* View, CDC* pDC, int Date, int Day, CM
 			Str.Format(L"%s", *Event->GetDescription());
 		}
 
+		if (Event->IsCompleted()) Str = Str + _T(" -- Competed");
+
 		// Accounting for the space to display times in the left side of the view
 		if (Day == 0)
 		{
@@ -734,17 +735,18 @@ void CViewWeekly::DrawColumn(CPlannerView* View, CDC* pDC, int Date, int Day, CM
 //
 int CViewWeekly::MoveRow(int Movement)
 {
+	
 	// Moving up one row
 	if (Movement > 0)
 	{
-		if(m_RowCounter > 0) m_RowCounter--;
+		if (m_RowCounter > 0) m_RowCounter--;
 		if (m_Offset > 0) m_Offset--;
 	}
 	// Moving down one row
 	else
 	{
-		if(m_RowCounter < 15) m_RowCounter++;
-		if (m_Offset < 15) m_Offset++;
+		if (m_RowCounter + (*m_Rows - 1) < 24) m_RowCounter++;
+		if (m_Offset + (*m_Rows - 1) < 24) m_Offset++;
 	}
 	return 0;
 }

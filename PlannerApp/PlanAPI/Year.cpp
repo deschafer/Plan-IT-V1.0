@@ -11,51 +11,39 @@
 
 IMPLEMENT_SERIAL(CYear, CObject, 1000)
 
-CYear::CYear(int YearDate, CPlannerView* view) : m_CurrMonthCounter(0)
+
+CYear::CYear(int YearDate) : m_CurrMonthCounter(0)
 {
 	// Local variables
 	int Correction = 0;
 	int MonthToday = 0;
+	// Getting today's time
 	time_t _Time = time(NULL);
 	tm * TimeOut = localtime(&_Time);
 	MonthToday = TimeOut->tm_mon;
-
+	// Setting member vars
 	m_YearDate = YearDate;
-
 	// Determines if this object is a leap year
 	(IsLeapYear()) ? m_LeapYear = 1, Correction = 1 : m_LeapYear = 0;
-	
+
 	// Initializing the months
-	m_Months[0] = new CMonth((int)MonthType::JAN, view->ReturnWidthPortion(),
-		view->ReturnHeightPortion(), view->ReturnRows(), view->ReturnColumns(), view->ReturnTopSize(), FindBegDate(1, 1, YearDate), 0, YearDate);
-	m_Months[1] = new CMonth((int)MonthType::FEB + Correction, view->ReturnWidthPortion(),
-		view->ReturnHeightPortion(), view->ReturnRows(), view->ReturnColumns(), view->ReturnTopSize(), FindBegDate(1, 2, YearDate), 1, YearDate);
-	m_Months[2] = new CMonth((int)MonthType::MAR, view->ReturnWidthPortion(),
-		view->ReturnHeightPortion(), view->ReturnRows(), view->ReturnColumns(), view->ReturnTopSize(), FindBegDate(1, 3, YearDate), 2, YearDate);
-	m_Months[3] = new CMonth((int)MonthType::APR, view->ReturnWidthPortion(),
-		view->ReturnHeightPortion(), view->ReturnRows(), view->ReturnColumns(), view->ReturnTopSize(), FindBegDate(1, 4, YearDate), 3, YearDate);
-	m_Months[4] = new CMonth((int)MonthType::MAY, view->ReturnWidthPortion(),
-		view->ReturnHeightPortion(), view->ReturnRows(), view->ReturnColumns(), view->ReturnTopSize(), FindBegDate(1, 5, YearDate), 4, YearDate);
-	m_Months[5] = new CMonth((int)MonthType::JUN, view->ReturnWidthPortion(),
-		view->ReturnHeightPortion(), view->ReturnRows(), view->ReturnColumns(), view->ReturnTopSize(), FindBegDate(1, 6, YearDate), 5, YearDate);
-	m_Months[6] = new CMonth((int)MonthType::JUL, view->ReturnWidthPortion(),
-		view->ReturnHeightPortion(), view->ReturnRows(), view->ReturnColumns(), view->ReturnTopSize(), FindBegDate(1, 7, YearDate), 6, YearDate);
-	m_Months[7] = new CMonth((int)MonthType::AUG, view->ReturnWidthPortion(),
-		view->ReturnHeightPortion(), view->ReturnRows(), view->ReturnColumns(), view->ReturnTopSize(), FindBegDate(1, 8, YearDate), 7, YearDate);
-	m_Months[8] = new CMonth((int)MonthType::SEP, view->ReturnWidthPortion(),
-		view->ReturnHeightPortion(), view->ReturnRows(), view->ReturnColumns(), view->ReturnTopSize(), FindBegDate(1, 9, YearDate), 8, YearDate);
-	m_Months[9] = new CMonth((int)MonthType::OCT, view->ReturnWidthPortion(),
-		view->ReturnHeightPortion(), view->ReturnRows(), view->ReturnColumns(), view->ReturnTopSize(), FindBegDate(1, 10, YearDate), 9, YearDate);
-	m_Months[10] = new CMonth((int)MonthType::NOV, view->ReturnWidthPortion(),
-		view->ReturnHeightPortion(), view->ReturnRows(), view->ReturnColumns(), view->ReturnTopSize(), FindBegDate(1, 11, YearDate), 10, YearDate);
-	m_Months[11] = new CMonth((int)MonthType::DEC, view->ReturnWidthPortion(),
-		view->ReturnHeightPortion(), view->ReturnRows(), view->ReturnColumns(), view->ReturnTopSize(), FindBegDate(1, 12, YearDate), 11, YearDate);
+	m_Months[0] = new CMonth((int)MonthType::JAN,  FindBegDate(1, 1, YearDate), 0, YearDate);
+	m_Months[1] = new CMonth((int)MonthType::FEB + Correction,  FindBegDate(1, 2, YearDate), 1, YearDate);
+	m_Months[2] = new CMonth((int)MonthType::MAR, FindBegDate(1, 3, YearDate), 2, YearDate);
+	m_Months[3] = new CMonth((int)MonthType::APR, FindBegDate(1, 4, YearDate), 3, YearDate);
+	m_Months[4] = new CMonth((int)MonthType::MAY, FindBegDate(1, 5, YearDate), 4, YearDate);
+	m_Months[5] = new CMonth((int)MonthType::JUN, FindBegDate(1, 6, YearDate), 5, YearDate);
+	m_Months[6] = new CMonth((int)MonthType::JUL, FindBegDate(1, 7, YearDate), 6, YearDate);
+	m_Months[7] = new CMonth((int)MonthType::AUG, FindBegDate(1, 8, YearDate), 7, YearDate);
+	m_Months[8] = new CMonth((int)MonthType::SEP, FindBegDate(1, 9, YearDate), 8, YearDate);
+	m_Months[9] = new CMonth((int)MonthType::OCT, FindBegDate(1, 10, YearDate), 9, YearDate);
+	m_Months[10] = new CMonth((int)MonthType::NOV, FindBegDate(1, 11, YearDate), 10, YearDate);
+	m_Months[11] = new CMonth((int)MonthType::DEC, FindBegDate(1, 12, YearDate), 11, YearDate);
 
 	// Set the current month and month counter
 	m_CurrentMonth = m_Months[MonthToday];
 	m_CurrMonthCounter = MonthToday;
 }
-
 
 // CYear member functions
 

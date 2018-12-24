@@ -1,5 +1,5 @@
-
 // PlannerAppDoc.cpp : implementation of the CPlannerAppDoc class
+// Modified by Damon E Schafer -- Dec. 2018
 //
 
 #include "stdafx.h"
@@ -12,6 +12,7 @@
 #include "PlannerAppDoc.h"
 
 #include <propkey.h>
+#include <fstream>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -31,7 +32,8 @@ END_MESSAGE_MAP()
 
 CPlannerDoc::CPlannerDoc()
 {
-	// TODO: add one-time construction code here
+	m_NewPlanner = nullptr;
+	View = nullptr;
 
 }
 
@@ -59,10 +61,7 @@ void CPlannerDoc::Serialize(CArchive& ar)
 {
 	if (ar.IsStoring())
 	{
-
 		ar << m_Planner;
-
-
 	}
 	else
 	{
@@ -70,11 +69,7 @@ void CPlannerDoc::Serialize(CArchive& ar)
 
 		ar >> m_NewPlanner;
 
-		CString String;
-		String.Format(L"%d", m_NewPlanner->ReturnBegYear());
-		AfxMessageBox(String);
-
-		InvalidateRect(GetActiveWindow(), nullptr, TRUE);
+		View->InvalidateRect(nullptr);
 	}
 }
 
@@ -148,3 +143,49 @@ void CPlannerDoc::Dump(CDumpContext& dc) const
 
 
 // CPlannerAppDoc commands
+
+
+BOOL CPlannerDoc::OnOpenDocument(LPCTSTR lpszPathName)
+{
+
+	if (!CDocument::OnOpenDocument(lpszPathName))
+		return FALSE;
+
+	// TODO:  Add your specialized creation code here
+
+	return TRUE;
+}
+
+//
+// CreatePreviousOpenedFile()
+// Creates the record file to store the filename of the 
+// previously opened file for Continue feature in start
+// screen to work properly.
+// Returns a pos integer if successfull
+//
+int CPlannerDoc::CreatePreviousOpenedFile(CString Filename)
+{
+	// Local vars
+	std::ofstream Output;
+
+	Output.open("Previous.txt", std::ofstream::trunc);
+
+	if (Output.fail())
+	{
+		AfxMessageBox(_T("Unable to open file"));
+		return -1;
+	}
+
+	int Len = Filename.GetLength();
+
+	if (Len == 0) return -2;
+
+	for (int i = 0; i < Len; i++)
+	{
+		Output.put(Filename[i]);
+	}
+	
+	Output.close();
+
+	return 1;
+}
