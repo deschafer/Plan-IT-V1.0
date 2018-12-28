@@ -52,23 +52,28 @@ BEGIN_MESSAGE_MAP(CPlannerView, CView)
 	ON_COMMAND(ID_FILE_OPENPLANNER, &CPlannerView::OnFileOpenPlanner)
 	ON_COMMAND(ID_SAVE_PLANNER, &CPlannerView::OnSavePlanner)
 	ON_COMMAND(ID_SAVE_PLANNER_AS, &CPlannerView::OnSavePlannerAs)
+	ON_WM_MOUSEMOVE()
+	ON_COMMAND(ID_VIEW_STARTPAGE, &CPlannerView::OnViewStartPage)
 END_MESSAGE_MAP()
 
 // CPlannerAppView construction/destruction
+
+CPlannerObject* m_ViewPlannerObjectGlobal = nullptr;
 
 CPlannerView::CPlannerView() : m_Rows(5), m_Columns(7), m_Height(0),
 m_Width(0), m_TopBarSize(60), m_DialogMax(1), m_DialogCount(0), m_Planner(nullptr), //m_Planner(new CPlannerObject(2018, 2028, _T("New Planner"))),
 m_MonthlyView(&m_Rows, &m_Columns, &m_Height, &m_Width, &m_TopBarSize, m_Planner),
 m_WeeklyView(&m_Rows, &m_Columns, &m_Height, &m_Width, &m_TopBarSize, m_Planner),
 m_DailyView(&m_Width, &m_Height, &m_TopBarSize, m_Planner),
-m_DefaultView(&m_Width, &m_Height, &m_TopBarSize), m_PreviousPoint(nullptr)
+m_DefaultView(&m_Width, &m_Height, &m_TopBarSize), m_PreviousPoint(nullptr),
+m_HasSaved(0)
 {
 
 	//m_CurrentView = &m_WeeklyView;
 	//m_CurrentView = &m_DailyView;
 	//m_CurrentView = &m_MonthlyView;
 	m_CurrentView = &m_DefaultView;
-
+	m_ViewPlannerObjectGlobal = m_Planner;
 }
 
 CPlannerView::~CPlannerView()
@@ -88,7 +93,7 @@ BOOL CPlannerView::PreCreateWindow(CREATESTRUCT& cs)
 void CPlannerView::OnDraw(CDC* pDC)
 {
 	static int enter = 0;
-	// Creating a CMemDC object
+	// Creating a CMemDC object -- for double buffering
 	CMemDC DpDC(*pDC, this);
 
 	// Setting the current device context to this new device context
@@ -104,7 +109,7 @@ void CPlannerView::OnDraw(CDC* pDC)
 	pDoc->View = this;
 	int Redraw = SetPlannerObject(pDoc);
 
-	if (m_Planner != nullptr && m_CurrentView == &m_DefaultView) SetActiveSubview(SubView::Monthly);
+	//if (m_Planner != nullptr && m_CurrentView == &m_DefaultView) SetActiveSubview(SubView::Monthly);
 
 	CRect rect;
 
@@ -125,6 +130,7 @@ void CPlannerView::OnDraw(CDC* pDC)
 //
 int CPlannerView::SetPlannerObject(CPlannerDoc* pDoc)
 {
+	
 
 	if (pDoc->m_NewPlanner != nullptr)
 	{
@@ -143,6 +149,7 @@ int CPlannerView::SetPlannerObject(CPlannerDoc* pDoc)
 	else
 	{
 		pDoc->m_Planner = m_Planner;
+		pDoc->m_NewPlanner = m_Planner;
 
 		return 0;
 	}
@@ -309,8 +316,16 @@ bool CPlannerView::OpenPreviousPlanner(CString &NewPathname)
 	return true;
 }
 
-void CPlannerView::OpenFile(CString AbsPathname)
+bool CPlannerView::OpenFile(CString AbsPathname)
 {
+	std::ifstream Input;
+
+	Input.open(AbsPathname);
+
+	if (Input.fail())
+	{
+		return false;
+	}
 
 	// Opens the file
 	GetDocument()->OnOpenDocument(AbsPathname);
@@ -323,7 +338,39 @@ void CPlannerView::OpenFile(CString AbsPathname)
 
 	// Moves active subview to monthly view
 	SetActiveSubview(SubView::Monthly);
+	m_CurrentPathname = AbsPathname;
+
+	m_HasSaved = 1;
+	return true;
+}
+
+//
+//
+//
+//
+void CPlannerView::SetCurrentPathname(CString AbsPathname)
+{
+
+	if (AbsPathname == _T("")) return;
+	else m_CurrentPathname = AbsPathname;
 
 }
 
 // CPlannerView message handlers in PLANNER.cpp
+
+void CPlannerView::OnMouseMove(UINT nFlags, CPoint point)
+{
+	
+
+	m_CurrentView->HandleMouseMove(point);
+
+	CView::OnMouseMove(nFlags, point);
+}
+
+
+void CPlannerView::OnViewStartPage()
+{
+	
+	m_CurrentView = &m_DefaultView;
+
+}

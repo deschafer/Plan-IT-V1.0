@@ -71,6 +71,7 @@ public:
 	virtual int OnNextYear() { return 0; }
 	virtual int OnPrevYear() { return 0; }
 	virtual int MoveRow(int Movement) { return 0; }
+	virtual void HandleMouseMove(CPoint Point) {}
 
 	CViewBase() {};
 	CViewBase::CViewBase(unsigned *Rows, unsigned *Columns, int *Height,
@@ -257,6 +258,10 @@ class CViewDefault : public CViewBase
 {
 private:
 
+	int m_ContinueHover;
+	int m_OpenHover;
+	int m_CreateHover;
+
 	//void DrawMainBox(int WidthMin, int HeightMin, int WidthMax, int HeightMax);
 	void DrawMainBox(CDC* pDC, int WidthMin, int HeightMin, int WidthMax, int HeightMax);
 
@@ -265,7 +270,7 @@ public:
 	virtual void DrawLayout(CDC* pDC, CPlannerView* View) override;
 	virtual void InitilizeWndVariables(CPlannerView* View) override {}
 	virtual bool SetObject(CPoint Point, CDay** DayObject) override;
-
+	virtual void HandleMouseMove(CPoint Point) override;
 
 	CViewDefault(int *m_Width, int *m_Height, int * TopBarPortion);
 };

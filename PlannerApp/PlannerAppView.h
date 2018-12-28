@@ -51,7 +51,9 @@ public:
 	void SetActiveSubview(SubView SubViewType);
 	bool CreateNewPlanner();
 	bool OpenPreviousPlanner(CString &NewPathname);
-	void OpenFile(CString AbsPathname);
+	bool OpenFile(CString AbsPathname);
+	void SetCurrentPathname(CString NewPathName);
+	CPlannerObject* GetPlanner() { return m_Planner; }
 
 	CDC* m_pDC;
 #ifdef _DEBUG
@@ -69,6 +71,8 @@ protected:
 	int m_WeeklyHeightPortion;	// The size for each row in the weekly view
 	unsigned m_Rows;		// Stores the count of the number of rows
 	unsigned m_Columns;		// Stores the count of the number of columns
+	int m_HasSaved;			// Indicates if the current file has been saved
+	CString m_CurrentPathname;	// Stores the current pathname of the open file
 
 	CPoint* m_PreviousPoint;	// Previous point where user clicked
 
@@ -114,6 +118,8 @@ public:
 	afx_msg void OnFileOpenPlanner();
 	afx_msg void OnSavePlanner();
 	afx_msg void OnSavePlannerAs();
+	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+	afx_msg void OnViewStartPage();
 };
 
 #ifndef _DEBUG  // debug version in PlannerAppView.cpp

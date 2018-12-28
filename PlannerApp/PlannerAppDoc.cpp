@@ -11,8 +11,11 @@
 
 #include "PlannerAppDoc.h"
 
+#include "PlannerAppView.h"
+
 #include <propkey.h>
 #include <fstream>
+#include "PlannerApp.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -61,13 +64,22 @@ void CPlannerDoc::Serialize(CArchive& ar)
 {
 	if (ar.IsStoring())
 	{
+		m_Planner = View->GetPlanner();
+
 		ar << m_Planner;
+		View->InvalidateRect(nullptr);
 	}
 	else
 	{
 		m_NewPlanner = new CPlannerObject;
 
 		ar >> m_NewPlanner;
+
+		if (m_NewPlanner == nullptr)
+		{
+			AfxMessageBox(_T("File Is Corrupted"));
+			abort();
+		}
 
 		View->InvalidateRect(nullptr);
 	}

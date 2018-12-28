@@ -207,7 +207,7 @@ bool CDialogNewPlanner::CheckData()
 		return false;
 	}
 
-	if (m_PlannerName.GetLength() > )
+	if (m_PlannerName.GetLength() > 48)
 	{
 		AfxMessageBox(_T("Planner Name Is Too Long"));
 		return false;

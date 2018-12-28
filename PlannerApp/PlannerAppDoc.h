@@ -7,6 +7,9 @@
 #include "PlanAPI\PlannerObject.h"
 #include "SubView\ViewBase.h"
 
+class CPlannerView;
+
+
 class CPlannerDoc : public CDocument
 {
 protected: // create from serialization only
@@ -35,7 +38,7 @@ public:
 	CPlannerObject* m_Planner;
 	CPlannerObject* m_NewPlanner;
 
-	CView* View;
+	CPlannerView* View;
 
 	int CreatePreviousOpenedFile(CString Filename);
 	

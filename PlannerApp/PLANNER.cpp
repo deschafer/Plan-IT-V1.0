@@ -342,20 +342,92 @@ void CPlannerView::OnFileOpenPlanner()
 		// Moves active subview to monthly view
 		SetActiveSubview(SubView::Monthly);
 
-		GetDocument()->CreatePreviousOpenedFile(sFilePath);
+		m_CurrentPathname = sFilePath;
 
+		GetDocument()->CreatePreviousOpenedFile(sFilePath);
 	}
 
+	m_HasSaved = 1;
 }
 
 
 void CPlannerView::OnSavePlanner()
 {
-	// TODO: Add your command handler code here
+	if (m_Planner == nullptr || m_CurrentView == &m_DefaultView)
+	{
+		AfxMessageBox(_T("Please Create or Open A Planner First"));
+		return;
+	}
+
+	if (m_HasSaved) 
+	{
+		//AfxMessageBox(m_CurrentPathname);
+		GetDocument()->OnSaveDocument(m_CurrentPathname);
+	}
+	else
+	{
+		// Block local vars
+		CString sFilePath = _T("");
+		const TCHAR szFilter[] = _T("planner Files (*.pln)|*.pln|All Files (*.*)|*.*||");
+		CFileDialog dlg(FALSE, _T("pln"), m_Planner->ReturnPlannerName(), OFN_FILEMUSTEXIST, szFilter, this);
+
+		// Opening a modal file dialog
+		if (dlg.DoModal() == IDOK)
+		{
+			sFilePath = dlg.GetPathName();
+		}
+		// If the pathname recieved is not empty
+		if (sFilePath != _T(""))
+		{
+			// Opens the file
+			GetDocument()->OnSaveDocument(sFilePath);
+
+			// Sets new document title
+			CString String;
+			String.Format(L"Plan-IT! V1.0.0 -- ");
+			String = String + sFilePath;
+			m_CurrentPathname = sFilePath;
+			(AfxGetMainWnd())->SetWindowText(String);
+			GetDocument()->CreatePreviousOpenedFile(sFilePath);
+
+			m_HasSaved = 1;
+		}
+	}
+	
 }
 
 
 void CPlannerView::OnSavePlannerAs()
 {
-	// TODO: Add your command handler code here
+	if (m_Planner == nullptr || m_CurrentView == &m_DefaultView)
+	{
+		AfxMessageBox(_T("Please Create or Open A Planner First"));
+		return;
+	}
+
+	// Block local vars
+	CString sFilePath = _T("");
+	const TCHAR szFilter[] = _T("planner Files (*.pln)|*.pln|All Files (*.*)|*.*||");
+	CFileDialog dlg(FALSE, _T("pln"), _T("New File Name"), OFN_FILEMUSTEXIST, szFilter, this);
+
+	// Opening a modal file dialog
+	if (dlg.DoModal() == IDOK)
+	{
+		sFilePath = dlg.GetPathName();
+	}
+	// If the pathname recieved is not empty
+	if (sFilePath != _T(""))
+	{
+		// Opens the file
+		GetDocument()->OnSaveDocument(sFilePath);
+
+		// Sets new document title
+		CString String;
+		String.Format(L"Plan-IT! V1.0.0 -- ");
+		String = String + sFilePath;
+		m_CurrentPathname = sFilePath;
+		(AfxGetMainWnd())->SetWindowText(String);
+		GetDocument()->CreatePreviousOpenedFile(sFilePath);
+
+	}
 }

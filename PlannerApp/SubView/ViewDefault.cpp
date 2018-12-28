@@ -6,7 +6,8 @@
 
 // CTOR for a CViewDaily subview object
 CViewDefault::CViewDefault(int *Width, int *Height, int * TopBarPortion) :
-	CViewBase(0, 0, Height, Width, TopBarPortion, nullptr)
+	CViewBase(0, 0, Height, Width, TopBarPortion, nullptr), m_ContinueHover(0),
+	m_CreateHover(0), m_OpenHover(0)
 {
 	m_Rows = new unsigned;
 	m_Columns = new unsigned;
@@ -100,7 +101,8 @@ void CViewDefault::DrawMainBox(CDC* pDC, int WidthMin, int HeightMin, int WidthM
 	// Exit box
 	EnclosingRect.SetRect(CPoint((WidthMax - WidthMin) / 2 - 150, (HeightMax - HeightMin) / 2 - 100),
 		CPoint((WidthMax - WidthMin) / 2 + 150, (HeightMax - HeightMin) / 2 - 60));
-	pDC->FillRect(&EnclosingRect, &NewBrush);
+	if (m_ContinueHover) pDC->FillRect(&EnclosingRect, &CBrush(RGB(120, 120, 120)));
+	else pDC->FillRect(&EnclosingRect, &NewBrush);
 	pDC->FrameRect(&EnclosingRect, &SecondBrush);
 	String.Format(L"Continue");
 	pDC->TextOutW((WidthMax - WidthMin) / 2 - pDC->GetTextExtent(String).cx / 2, (HeightMax - HeightMin) / 2 - 95, String);
@@ -108,7 +110,8 @@ void CViewDefault::DrawMainBox(CDC* pDC, int WidthMin, int HeightMin, int WidthM
 	// Create new planner button box
 	EnclosingRect.SetRect(CPoint((WidthMax - WidthMin) / 2 - 150, (HeightMax - HeightMin) / 2 - 20),
 		CPoint((WidthMax - WidthMin) / 2 + 150, (HeightMax - HeightMin) / 2 + 20));
-	pDC->FillRect(&EnclosingRect, &NewBrush);
+	if (m_CreateHover) pDC->FillRect(&EnclosingRect, &CBrush(RGB(120, 120, 120)));
+	else pDC->FillRect(&EnclosingRect, &NewBrush);
 	pDC->FrameRect(&EnclosingRect, &SecondBrush);
 	String.Format(L"Create A New Planner");
 	pDC->TextOutW((WidthMax - WidthMin) / 2 - pDC->GetTextExtent(String).cx / 2, (HeightMax - HeightMin) / 2 - 15, String);
@@ -116,7 +119,8 @@ void CViewDefault::DrawMainBox(CDC* pDC, int WidthMin, int HeightMin, int WidthM
 	// Open existing planner box
 	EnclosingRect.SetRect(CPoint((WidthMax - WidthMin) / 2 - 150, (HeightMax - HeightMin) / 2 + 60),
 		CPoint((WidthMax - WidthMin) / 2 + 150, (HeightMax - HeightMin) / 2 + 100));
-	pDC->FillRect(&EnclosingRect, &NewBrush);
+	if (m_OpenHover) pDC->FillRect(&EnclosingRect, &CBrush(RGB(120, 120, 120)));
+	else pDC->FillRect(&EnclosingRect, &NewBrush);
 	pDC->FrameRect(&EnclosingRect, &SecondBrush);
 	String.Format(L"Open An Existing Planner");
 	pDC->TextOutW((WidthMax - WidthMin) / 2 - pDC->GetTextExtent(String).cx / 2, (HeightMax - HeightMin) / 2 + 65, String);
@@ -179,9 +183,8 @@ bool CViewDefault::SetObject(CPoint Point, CDay** DayObject)
 		Point.y >= EnclosingRect.TopLeft().y &&
 		Point.y <= EnclosingRect.BottomRight().y)
 	{
-		if (m_CurrentView->OpenPreviousPlanner(NewPathname))
+		if (m_CurrentView->OpenPreviousPlanner(NewPathname) && m_CurrentView->OpenFile(NewPathname))
 		{
-			m_CurrentView->OpenFile(NewPathname);
 		}
 		else
 		{
@@ -202,6 +205,7 @@ bool CViewDefault::SetObject(CPoint Point, CDay** DayObject)
 		if (m_CurrentView->CreateNewPlanner())
 		{
 			m_CurrentView->SetActiveSubview(SubView::Monthly);
+			m_CurrentView->SetCurrentPathname(NewPathname);
 		}
 		// Error case
 		else
@@ -220,7 +224,69 @@ bool CViewDefault::SetObject(CPoint Point, CDay** DayObject)
 		Point.y <= EnclosingRect.BottomRight().y)
 	{
 		m_CurrentView->OnFileOpenPlanner();
+
 	}
 
 	return false;
+}
+
+//
+// HandleMouseMove()
+// Handes mouse movement -- 
+//
+void CViewDefault::HandleMouseMove(CPoint Point)
+{
+	CRect EnclosingRect;
+
+	EnclosingRect.SetRect(CPoint((*m_Width) / 2 - 150, (*m_Height - *m_TopBarSize) / 2 - 100),
+		CPoint((*m_Width) / 2 + 150, (*m_Height - *m_TopBarSize) / 2 - 60));
+
+	if (Point.x >= EnclosingRect.TopLeft().x &&
+		Point.x <= EnclosingRect.BottomRight().x &&
+		Point.y >= EnclosingRect.TopLeft().y &&
+		Point.y <= EnclosingRect.BottomRight().y)
+	{
+		m_ContinueHover = 1;
+		m_OpenHover = 0;
+		m_CreateHover = 0;
+		m_CurrentView->InvalidateRect(nullptr);
+		return;
+	}
+
+	EnclosingRect.SetRect(CPoint((*m_Width) / 2 - 150, (*m_Height - *m_TopBarSize) / 2 - 20),
+		CPoint((*m_Width) / 2 + 150, (*m_Height - *m_TopBarSize) / 2 + 20));
+
+	if (Point.x >= EnclosingRect.TopLeft().x &&
+		Point.x <= EnclosingRect.BottomRight().x &&
+		Point.y >= EnclosingRect.TopLeft().y &&
+		Point.y <= EnclosingRect.BottomRight().y)
+	{
+		m_CreateHover = 1;
+		m_OpenHover = 0;
+		m_ContinueHover = 0;
+		m_CurrentView->InvalidateRect(nullptr);
+		return;
+	}
+
+	EnclosingRect.SetRect(CPoint((*m_Width) / 2 - 150, (*m_Height - *m_TopBarSize) / 2 + 60),
+		CPoint((*m_Width) / 2 + 150, (*m_Height - *m_TopBarSize) / 2 + 100));
+
+	// Processes click on open existing file
+	if (Point.x >= EnclosingRect.TopLeft().x &&
+		Point.x <= EnclosingRect.BottomRight().x &&
+		Point.y >= EnclosingRect.TopLeft().y &&
+		Point.y <= EnclosingRect.BottomRight().y)
+	{
+		m_OpenHover = 1;
+		m_CreateHover = 0;
+		m_ContinueHover = 0;
+		m_CurrentView->InvalidateRect(nullptr);
+		return;
+	}
+
+	if (m_OpenHover || m_ContinueHover || m_CreateHover) m_CurrentView->InvalidateRect(nullptr);
+
+	m_OpenHover = 0;
+	m_ContinueHover = 0;
+	m_CreateHover = 0;
 }
