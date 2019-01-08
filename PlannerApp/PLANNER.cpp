@@ -10,14 +10,19 @@ void CPlannerView::OnSize(UINT nType, int cx, int cy)
 
 }
 
-
-void CPlannerView::OnLButtonDown(UINT nFlags, CPoint point)
+void CPlannerView::OnLButtonUp(UINT nFlags, CPoint point)
 {
+
+	if (m_Planner == nullptr && m_CurrentView != &m_DefaultView) return;
+
 	// Local variables
 	CWnd* temp = nullptr;
 	CString String;
 	LoadLibrary(_T("riched32.dll"));
 	CRect *ORect = nullptr;
+
+	// Resets flag indicating we are handling mouse movement
+	m_DraggedEvent = 0;
 
 	// Set the previous point pointer
 	m_PreviousPoint = new CPoint(point);
@@ -84,9 +89,32 @@ void CPlannerView::OnLButtonDown(UINT nFlags, CPoint point)
 		InvalidateRect(nullptr);
 
 	}
+}
+
+void CPlannerView::OnLButtonDblClk(UINT nFlags, CPoint point)
+{
+	
+
+}
+
+void CPlannerView::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	// Some sort of indicator variable is needed so button up knows if dragging
+	// Current view drag items here
+
+	m_DraggedEvent = m_CurrentView->HandleMouseDrag(point);
 
 
+}
 
+
+void CPlannerView::OnMouseMove(UINT nFlags, CPoint point)
+{
+
+	if(m_CurrentView == &m_DefaultView || m_DraggedEvent && m_Planner != nullptr)
+		m_CurrentView->HandleMouseMove(point);
+
+	CView::OnMouseMove(nFlags, point);
 }
 
 
@@ -94,7 +122,7 @@ void CPlannerView::CreateNewEventDialog()
 {
 	// If there was a previous point, then create a new click where the previous 
 	// point was.
-	if (m_PreviousPoint != nullptr) OnLButtonDown(1, *m_PreviousPoint);
+	if (m_PreviousPoint != nullptr) OnLButtonUp(1, *m_PreviousPoint);
 }
 
 void CPlannerView::OnNextMonth()
@@ -330,6 +358,10 @@ void CPlannerView::OnFileOpenPlanner()
 	// If the pathname recieved is not empty
 	if (sFilePath != _T(""))
 	{
+		//Sleep(4000);
+		//AfxMessageBox(_T("h"));
+		//AfxMessageBox(sFilePath);
+
 		// Opens the file
 		GetDocument()->OnOpenDocument(sFilePath);
 
@@ -338,6 +370,7 @@ void CPlannerView::OnFileOpenPlanner()
 		String.Format(L"Plan-IT! V1.0.0 -- ");
 		String = String + sFilePath;
 		(AfxGetMainWnd())->SetWindowText(String);
+
 
 		// Moves active subview to monthly view
 		SetActiveSubview(SubView::Monthly);
@@ -393,7 +426,6 @@ void CPlannerView::OnSavePlanner()
 			m_HasSaved = 1;
 		}
 	}
-	
 }
 
 
@@ -431,3 +463,11 @@ void CPlannerView::OnSavePlannerAs()
 
 	}
 }
+
+void CPlannerView::OnViewStartPage()
+{
+
+	m_CurrentView = &m_DefaultView;
+
+}
+

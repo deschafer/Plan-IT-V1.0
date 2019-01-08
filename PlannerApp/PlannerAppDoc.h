@@ -40,6 +40,8 @@ public:
 
 	CPlannerView* View;
 
+	bool m_Modified;
+
 	int CreatePreviousOpenedFile(CString Filename);
 	
 #ifdef _DEBUG

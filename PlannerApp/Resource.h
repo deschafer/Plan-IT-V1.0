@@ -72,13 +72,14 @@
 #define ID_FILE_SAVEPLANNER             32799
 #define ID_FILE_SAVEPLANNERAS           32800
 #define ID_SAVE_PLANNER_AS              32801
+#define ID_BUTTON32808                  32808
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        319
-#define _APS_NEXT_COMMAND_VALUE         32802
+#define _APS_NEXT_COMMAND_VALUE         32809
 #define _APS_NEXT_CONTROL_VALUE         1024
 #define _APS_NEXT_SYMED_VALUE           310
 #endif

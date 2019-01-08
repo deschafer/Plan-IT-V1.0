@@ -72,6 +72,8 @@ protected:
 	unsigned m_Rows;		// Stores the count of the number of rows
 	unsigned m_Columns;		// Stores the count of the number of columns
 	int m_HasSaved;			// Indicates if the current file has been saved
+	int m_DraggedEvent;		// Indicates if we now need to handle mouse movement
+
 	CString m_CurrentPathname;	// Stores the current pathname of the open file
 
 	CPoint* m_PreviousPoint;	// Previous point where user clicked
@@ -79,7 +81,6 @@ protected:
 	int m_DialogCount;
 	int m_DialogMax;
 	CDialogEx* m_OpenDialog;
-
 
 	CPlannerObject *m_Planner;
 
@@ -120,10 +121,19 @@ public:
 	afx_msg void OnSavePlannerAs();
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnViewStartPage();
+	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
+	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
+
+
+	
+
+
 };
 
 #ifndef _DEBUG  // debug version in PlannerAppView.cpp
-inline CPlannerAppDoc* CPlannerAppView::GetDocument() const
-   { return reinterpret_cast<CPlannerAppDoc*>(m_pDocument); }
+inline CPlannerDoc* CPlannerView::GetDocument() const
+{
+	return reinterpret_cast<CPlannerDoc*>(m_pDocument);
+}
 #endif
 

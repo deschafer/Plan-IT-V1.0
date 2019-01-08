@@ -222,3 +222,87 @@ void CLLNode_Event::Serialize(CArchive &ar)
 		}
 	}
 }
+
+//
+// SwapWithNext()
+// Swaps the event pointed to with the next event
+//
+void CLLNode_Event::SwapWithNext(CPlannerEvent* Event)
+{
+	Node* p_Traverse = nullptr;
+	Node* p_Prev = nullptr;
+	p_Traverse = GetHead();
+
+	for (int i = 0; (p_Traverse) != nullptr && p_Traverse->Object != Event; )
+	{
+		p_Prev = p_Traverse;
+		p_Traverse = p_Traverse->next;
+	}
+
+	if (p_Traverse == nullptr);
+	else
+	{
+		Node* NextNode = p_Traverse->next;
+		if (NextNode != nullptr)
+		{
+			p_Traverse->next = NextNode->next;
+			NextNode->next = p_Traverse;
+			if (p_Prev != nullptr)
+			{
+				p_Prev->next = NextNode;
+			}
+			else
+			{
+				p_Head = NextNode;
+			}
+		}
+	}
+}
+
+//
+// SwapWithPrevious()
+// Swaps the event pointed to with the previous event
+//
+void CLLNode_Event::SwapWithPrevious(CPlannerEvent* Event)
+{
+	Node* p_Traverse = nullptr;
+	Node* p_Prev = nullptr;
+	Node* p_PrevPrev = nullptr;
+	p_Traverse = GetHead()->next;
+	p_Prev = GetHead();
+
+	for (int i = 0; (p_Traverse) != nullptr && p_Traverse->Object != Event; )
+	{
+		p_PrevPrev = p_Prev;
+		p_Prev = p_Prev->next;
+		p_Traverse = p_Traverse->next;
+	}
+
+	// case where the element to be swapped is the second element
+	if (GetHead()->next->Object == Event)
+	{
+		Node* node = p_Head;
+		p_Head = p_Head->next;
+		Node* Rem = p_Head->next;
+		p_Head->next = node;
+		node->next = Rem;
+		return;
+	}
+
+	if (p_Traverse == nullptr);
+	else
+	{
+		p_Prev->next = p_Traverse->next;
+		p_Traverse->next = p_Prev;
+
+		if (p_PrevPrev != nullptr)
+		{
+			p_PrevPrev->next = p_Traverse;
+		}
+		else
+		{
+			p_Head = p_Prev;
+			p_Prev->next = p_Traverse;
+		}
+	}
+}

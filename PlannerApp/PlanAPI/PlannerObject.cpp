@@ -139,10 +139,11 @@ CMonth* CPlannerObject::ReturnNextMonth()
 
 int CPlannerObject::SetDayObject(CDay* Day)
 {
+	CYear* CurrYear = nullptr;
+	CurrYear = YearList->ReturnYearThatMatches(Day->GetYear());
 
-	CYear* CurrYear = YearList->ReturnYearThatMatches(Day->GetYear());
-
-	CDay* CurrDay = CurrYear->MonthNum(Day->GetMonth())->ReturnDayWithDate(Day->GetNumber());
+	CDay* CurrDay = nullptr;
+	CurrDay = CurrYear->MonthNum(Day->GetMonth())->ReturnDayWithDate(Day->GetNumber());
 
 	CurrDay = Day;
 

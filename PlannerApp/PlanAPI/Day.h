@@ -33,6 +33,7 @@ public:
 	int ClearEntireDay();
 	void MarkEventAsCompleted(bool AllDay, int X, int time = 0);
 	void MarkNextEventAsCompleted(bool AllDay, int time = 0);
+	void SwapEvent(CPlannerEvent* Event, bool AllDay, bool Prev, int time = 0);
 
 	virtual void Serialize(CArchive &ar) override;
 

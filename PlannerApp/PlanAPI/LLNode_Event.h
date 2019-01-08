@@ -27,6 +27,8 @@ public:
 	bool IsXCompleted(int X);					// Returns true if Xth element is completed
 	void MarkNextCompleted();					// Marks the first uncompleted event as completed
 	Node* p_EventAux;							// Auxillary pointer
+	void SwapWithPrevious(CPlannerEvent* Event);
+	void SwapWithNext(CPlannerEvent* Event);
 
 	virtual void Serialize(CArchive &ar);
 

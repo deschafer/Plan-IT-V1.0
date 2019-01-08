@@ -33,7 +33,7 @@ END_MESSAGE_MAP()
 
 // CPlannerAppDoc construction/destruction
 
-CPlannerDoc::CPlannerDoc()
+CPlannerDoc::CPlannerDoc() : m_Modified(false)
 {
 	m_NewPlanner = nullptr;
 	View = nullptr;

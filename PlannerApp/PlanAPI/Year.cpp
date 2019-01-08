@@ -140,6 +140,7 @@ void CYear::Serialize(CArchive& ar)
 
 		for (int i = 0; i < 12; i++)
 		{
+			m_Months[i] = new CMonth;
 			ar >> m_Months[i];
 		}
 		

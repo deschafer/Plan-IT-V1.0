@@ -7,8 +7,8 @@
 CViewDaily::CViewDaily(int *Width, int *Height, int * TopBarPortion, CPlannerObject* Object) :
 	CViewBase(0, 0, Height, Width, TopBarPortion, Object), m_PreviousMonth(0), m_TimeOffset(0),
 	m_CenterSectionWidth(35), m_AllDayOffset(0), m_LeftFontActualSize(28), m_SelectedTime(-1),
-	m_AllDayEventAddedPrevious(0), m_DisplayedStrings(0), m_MaxNumberOfDisplayedStrings(0),
-	m_LeftSideStringSpace(28), m_SetExternal(0), m_ContextSelectedTime(0)
+	m_AllDayEventAddedPrevious(0), m_DisplayedStrings(0), m_MaxNumberOfDisplayedStrings(0), m_CurrDay(nullptr),
+	m_LeftSideStringSpace(28), m_SetExternal(0), m_ContextSelectedTime(0), m_DraggedEventInitialPosition(0)
 {
 	m_Rows = new unsigned;
 	m_Columns =  new unsigned;
@@ -109,6 +109,14 @@ void CViewDaily::SetDay()
 
 	// Storing this month type
 	m_PreviousMonth = m_CurrentMonth->ReturnMonthType();
+
+	if (m_CurrDay == nullptr)
+	{
+
+		m_CurrDay = m_CurrentMonth->ReturnDayWithDate(p_Time->tm_mday);
+
+	}
+
 
 	//Calculate the current displayed events on the screen
 	m_DisplayedStrings = m_CurrDay->GetNumberOfAllDayEvents() - m_AllDayOffset + 2;
@@ -667,7 +675,7 @@ bool CViewDaily::SetObject(CPoint Point, CDay **DayObject)
 			return true;
 		}
 		CPlannerEvent* Event;
-		if ((Event = m_CurrDay->GetAllDayEvent((Point.y - *m_TopBarSize) / m_LeftFontActualSize)) != nullptr) Event->MarkCompleted();
+		//if ((Event = m_CurrDay->GetAllDayEvent((Point.y - *m_TopBarSize) / m_LeftFontActualSize)) != nullptr) Event->MarkCompleted();
 		m_SizeChanged = 1;
 	}
 	// If the point is on the right side
@@ -895,5 +903,56 @@ void CViewDaily::OnMarkNextAsCompleted()
 {
 	// Deleting the hour under the cursor
 	m_CurrDay->MarkNextEventAsCompleted(false, m_TimeOffset + (m_CursorPosition.y - *m_TopBarSize) / m_HeightPortion);
+
+}
+
+//
+// HandleMouseDrag()
+// Sets current dragged event following the current
+// mouse cursor position
+//
+int CViewDaily::HandleMouseDrag(CPoint Point)
+{
+	CPlannerEvent* Event = nullptr;
+
+	// If the point is in the left side
+	if (Point.y > *m_TopBarSize &&
+		Point.x < (m_WidthPortion - m_CenterSectionWidth))
+	{
+		// If the cursor is over an element
+		if (Event = (m_CurrDay->GetAllDayEvent(m_AllDayOffset + (Point.y - *m_TopBarSize - 10) / m_LeftFontActualSize)))
+		{
+			// Sets the event that has been selected
+			m_DraggedEvent = Event;
+			m_DraggedEventInitialPosition = m_AllDayOffset + (Point.y - *m_TopBarSize - 10) / m_LeftFontActualSize;
+			return 1;
+		}
+
+	}
+
+	return 0;
+}
+
+//
+// HandleMouseMove()
+// Handles mouse movement for the dragging motion
+// Records mouse movement, and takes appropriate action
+// in the LL to represent the changes
+//
+void CViewDaily::HandleMouseMove(CPoint Point)
+{
+	if (((Point.y - *m_TopBarSize - 10) / m_LeftFontActualSize + m_AllDayOffset) < m_DraggedEventInitialPosition)
+	{
+		m_CurrDay->SwapEvent(m_DraggedEvent, true, true);
+		m_DraggedEventInitialPosition--;
+		m_CurrentView->InvalidateRect(nullptr);
+	}
+
+	else if ((((Point.y - *m_TopBarSize - 10) / m_LeftFontActualSize + m_AllDayOffset) > m_DraggedEventInitialPosition))
+	{
+		m_CurrDay->SwapEvent(m_DraggedEvent, true, false);
+		m_DraggedEventInitialPosition++;
+		m_CurrentView->InvalidateRect(nullptr);
+	}
 
 }

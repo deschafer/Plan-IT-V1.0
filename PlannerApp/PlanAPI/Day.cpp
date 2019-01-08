@@ -302,3 +302,60 @@ void CDay::Serialize(CArchive& ar)
 		}
 	}
 }
+
+//
+// Swaps the event for the following list of events with either
+// the previous or next event. Prev flag indicates whether previous
+// is to be swapped.
+// AllDay flag indicates alllday event list.
+//
+void CDay::SwapEvent(CPlannerEvent* Event,bool AllDay, bool Prev, int time)
+{
+	// For allday list
+	if (AllDay)
+	{
+		if (Prev)
+		{
+			m_AllDayEventList->SwapWithPrevious(Event);
+		}
+		else
+		{
+			m_AllDayEventList->SwapWithNext(Event);
+		}
+
+	}
+	// For timed event lists
+	else
+	{
+		if (Prev)
+		{
+
+			if (time >= 0 && time < 24)
+			{
+				EventListArray[time]->SwapWithPrevious(Event);
+			}
+			else
+			{
+				AfxMessageBox(_T("Time is not within the bounds."));
+				abort();
+			}
+
+		}
+		else
+		{
+
+			if (time >= 0 && time < 24)
+			{
+				EventListArray[time]->SwapWithPrevious(Event);
+			}
+			else
+			{
+				AfxMessageBox(_T("Time is not within the bounds."));
+				abort();
+			}
+
+		}
+	}
+
+}
+

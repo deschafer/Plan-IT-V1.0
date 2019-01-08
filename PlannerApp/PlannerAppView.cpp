@@ -54,6 +54,8 @@ BEGIN_MESSAGE_MAP(CPlannerView, CView)
 	ON_COMMAND(ID_SAVE_PLANNER_AS, &CPlannerView::OnSavePlannerAs)
 	ON_WM_MOUSEMOVE()
 	ON_COMMAND(ID_VIEW_STARTPAGE, &CPlannerView::OnViewStartPage)
+	ON_WM_LBUTTONDBLCLK()
+	ON_WM_LBUTTONUP()
 END_MESSAGE_MAP()
 
 // CPlannerAppView construction/destruction
@@ -66,7 +68,7 @@ m_MonthlyView(&m_Rows, &m_Columns, &m_Height, &m_Width, &m_TopBarSize, m_Planner
 m_WeeklyView(&m_Rows, &m_Columns, &m_Height, &m_Width, &m_TopBarSize, m_Planner),
 m_DailyView(&m_Width, &m_Height, &m_TopBarSize, m_Planner),
 m_DefaultView(&m_Width, &m_Height, &m_TopBarSize), m_PreviousPoint(nullptr),
-m_HasSaved(0)
+m_HasSaved(0), m_DraggedEvent(0)
 {
 
 	//m_CurrentView = &m_WeeklyView;
@@ -277,7 +279,6 @@ bool CPlannerView::CreateNewPlanner()
 	// Opening a modal file dialog
 	if (aDlg.DoModal() == IDOK)
 	{
-		//delete m_Planner;
 
 		m_Planner = new CPlannerObject(aDlg.m_BegDateNumeric, aDlg.m_EndDateNumeric, aDlg.m_PlannerName);
 
@@ -316,6 +317,10 @@ bool CPlannerView::OpenPreviousPlanner(CString &NewPathname)
 	return true;
 }
 
+//
+//
+//
+//
 bool CPlannerView::OpenFile(CString AbsPathname)
 {
 	std::ifstream Input;
@@ -358,19 +363,8 @@ void CPlannerView::SetCurrentPathname(CString AbsPathname)
 
 // CPlannerView message handlers in PLANNER.cpp
 
-void CPlannerView::OnMouseMove(UINT nFlags, CPoint point)
-{
-	
-
-	m_CurrentView->HandleMouseMove(point);
-
-	CView::OnMouseMove(nFlags, point);
-}
 
 
-void CPlannerView::OnViewStartPage()
-{
-	
-	m_CurrentView = &m_DefaultView;
 
-}
+
+

@@ -72,6 +72,7 @@ public:
 	virtual int OnPrevYear() { return 0; }
 	virtual int MoveRow(int Movement) { return 0; }
 	virtual void HandleMouseMove(CPoint Point) {}
+	virtual int HandleMouseDrag(CPoint Point) { return 0; }
 
 	CViewBase() {};
 	CViewBase::CViewBase(unsigned *Rows, unsigned *Columns, int *Height,
@@ -217,6 +218,9 @@ private:
 
 	int m_PreviousMonth;	
 
+	CPlannerEvent* m_DraggedEvent;
+	int m_DraggedEventInitialPosition;
+
 	CDay* m_CurrDay;		// Pointer to the current displayed object
 	int m_ContextSelectedTime;
 
@@ -237,6 +241,8 @@ public:
 	// Overrides
 	virtual int HandleKeyboardMsg(UINT nChar);
 	virtual CMenu* HandleContextMenu(CWnd* pWnd, CPoint Point);
+	virtual int HandleMouseDrag(CPoint Point) override;
+	virtual void HandleMouseMove(CPoint Point) override;
 
 	virtual void OnClearDay() override;
 	virtual void OnDeleteEvent() override;
@@ -261,6 +267,8 @@ private:
 	int m_ContinueHover;
 	int m_OpenHover;
 	int m_CreateHover;
+
+
 
 	//void DrawMainBox(int WidthMin, int HeightMin, int WidthMax, int HeightMax);
 	void DrawMainBox(CDC* pDC, int WidthMin, int HeightMin, int WidthMax, int HeightMax);
