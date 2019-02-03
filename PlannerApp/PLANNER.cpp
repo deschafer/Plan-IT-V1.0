@@ -111,7 +111,8 @@ void CPlannerView::OnLButtonDown(UINT nFlags, CPoint point)
 void CPlannerView::OnMouseMove(UINT nFlags, CPoint point)
 {
 
-	if(m_CurrentView == &m_DefaultView || m_DraggedEvent && m_Planner != nullptr)
+	if(m_CurrentView == &m_DefaultView || m_DraggedEvent && m_Planner != nullptr 
+		|| m_CurrentView == &m_DailyView)
 		m_CurrentView->HandleMouseMove(point);
 
 	CView::OnMouseMove(nFlags, point);

@@ -213,6 +213,8 @@ private:
 
 	int m_SelectedTime;
 
+	bool m_AddEventButtonSelected;
+	bool m_DraggingEvent;
 	bool m_AllDayEventAddedPrevious;
 	bool m_SetExternal;
 

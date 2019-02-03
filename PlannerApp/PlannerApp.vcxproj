@@ -237,6 +237,8 @@
     <ClCompile Include="SubView\ViewWeekly.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ClassDiagram.cd" />
+    <None Include="ClassDiagram1.cd" />
     <None Include="PlannerApp.reg" />
     <None Include="res\PlannerApp.rc2" />
   </ItemGroup>

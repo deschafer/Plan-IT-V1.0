@@ -8,7 +8,8 @@ CViewDaily::CViewDaily(int *Width, int *Height, int * TopBarPortion, CPlannerObj
 	CViewBase(0, 0, Height, Width, TopBarPortion, Object), m_PreviousMonth(0), m_TimeOffset(0),
 	m_CenterSectionWidth(35), m_AllDayOffset(0), m_LeftFontActualSize(28), m_SelectedTime(-1),
 	m_AllDayEventAddedPrevious(0), m_DisplayedStrings(0), m_MaxNumberOfDisplayedStrings(0), m_CurrDay(nullptr),
-	m_LeftSideStringSpace(28), m_SetExternal(0), m_ContextSelectedTime(0), m_DraggedEventInitialPosition(0)
+	m_LeftSideStringSpace(28), m_SetExternal(0), m_ContextSelectedTime(0), m_DraggedEventInitialPosition(0),
+	m_AddEventButtonSelected(false), m_DraggingEvent(false)
 {
 	m_Rows = new unsigned;
 	m_Columns =  new unsigned;
@@ -226,9 +227,19 @@ void CViewDaily::DrawLeftSection(CDC* pDC, CPlannerView* View, int HeightMin, in
 
 	// New Event button
 	// Drawing the inside of the rectangle
-	pDC->FillRect(CRect(CPoint(WidthMin + 2, HeightMin + (j * m_LeftSideStringSpace) + Offset),
-		CPoint(pDC->GetTextExtent(_T("+ Add New Event")).cx + Offset + 5, HeightMin + ((j + 1) * m_LeftSideStringSpace) + Offset + 5)),
-		&CBrush(RGB(145, 156, 186)));
+	if (m_AddEventButtonSelected)
+	{
+		pDC->FillRect(CRect(CPoint(WidthMin + 2, HeightMin + (j * m_LeftSideStringSpace) + Offset),
+			CPoint(pDC->GetTextExtent(_T("+ Add New Event")).cx + Offset + 5, HeightMin + ((j + 1) * m_LeftSideStringSpace) + Offset + 5)),
+			&CBrush(RGB(165, 176, 206)));
+	}
+	else
+	{
+		pDC->FillRect(CRect(CPoint(WidthMin + 2, HeightMin + (j * m_LeftSideStringSpace) + Offset),
+			CPoint(pDC->GetTextExtent(_T("+ Add New Event")).cx + Offset + 5, HeightMin + ((j + 1) * m_LeftSideStringSpace) + Offset + 5)),
+			&CBrush(RGB(145, 156, 186)));
+	}
+	
 	// Drawing the outline of the rectangle
 	pDC->FrameRect(CRect(CPoint(WidthMin + 2, HeightMin + (j * m_LeftSideStringSpace) + Offset),
 		CPoint(pDC->GetTextExtent(_T("+ Add New Event")).cx + Offset + 5, HeightMin + ((j + 1) * m_LeftSideStringSpace) + Offset + 5)),
@@ -651,6 +662,8 @@ int CViewDaily::MoveRow(int Movement)
 //
 bool CViewDaily::SetObject(CPoint Point, CDay **DayObject)
 {
+	m_DraggingEvent = false;
+
 	// If the point is in the left side
 	if (Point.y > *m_TopBarSize &&
 		Point.x < (m_WidthPortion - m_CenterSectionWidth))
@@ -923,6 +936,7 @@ int CViewDaily::HandleMouseDrag(CPoint Point)
 		if (Event = (m_CurrDay->GetAllDayEvent(m_AllDayOffset + (Point.y - *m_TopBarSize - 10) / m_LeftFontActualSize)))
 		{
 			// Sets the event that has been selected
+			m_DraggingEvent = true;
 			m_DraggedEvent = Event;
 			m_DraggedEventInitialPosition = m_AllDayOffset + (Point.y - *m_TopBarSize - 10) / m_LeftFontActualSize;
 			return 1;
@@ -941,18 +955,37 @@ int CViewDaily::HandleMouseDrag(CPoint Point)
 //
 void CViewDaily::HandleMouseMove(CPoint Point)
 {
-	if (((Point.y - *m_TopBarSize - 10) / m_LeftFontActualSize + m_AllDayOffset) < m_DraggedEventInitialPosition)
+	if (m_AddEventButtonSelected == false && m_DraggedEvent != nullptr && m_DraggingEvent)
 	{
-		m_CurrDay->SwapEvent(m_DraggedEvent, true, true);
-		m_DraggedEventInitialPosition--;
-		m_CurrentView->InvalidateRect(nullptr);
+		if (((Point.y - *m_TopBarSize - 10) / m_LeftFontActualSize + m_AllDayOffset) < m_DraggedEventInitialPosition)
+		{
+			m_CurrDay->SwapEvent(m_DraggedEvent, true, true);
+			m_DraggedEventInitialPosition--;
+			m_CurrentView->InvalidateRect(nullptr);
+		}
+
+		else if ((((Point.y - *m_TopBarSize - 10) / m_LeftFontActualSize + m_AllDayOffset) > m_DraggedEventInitialPosition))
+		{
+			m_CurrDay->SwapEvent(m_DraggedEvent, true, false);
+			m_DraggedEventInitialPosition++;
+			m_CurrentView->InvalidateRect(nullptr);
+		}
 	}
 
-	else if ((((Point.y - *m_TopBarSize - 10) / m_LeftFontActualSize + m_AllDayOffset) > m_DraggedEventInitialPosition))
+	// button selection add event button
+	if ((Point.y >= ((m_CurrDay->GetNumberOfAllDayEvents() - m_AllDayOffset) * m_LeftSideStringSpace) + *m_TopBarSize + 10 &&
+		Point.y <= (((m_CurrDay->GetNumberOfAllDayEvents() - m_AllDayOffset) + 1) * m_LeftSideStringSpace) + *m_TopBarSize + 15) &&
+		Point.x >= m_EventButtonWidthMin && Point.x <= m_EventButtonWidthMax)
 	{
-		m_CurrDay->SwapEvent(m_DraggedEvent, true, false);
-		m_DraggedEventInitialPosition++;
+		m_AddEventButtonSelected = true;
 		m_CurrentView->InvalidateRect(nullptr);
+	}
+	else
+	{
+
+		m_AddEventButtonSelected = false;
+		m_CurrentView->InvalidateRect(nullptr);
+
 	}
 
 }
